@@ -225,6 +225,10 @@
   .login-field input:focus{ outline:none; border-color:var(--blue-600); box-shadow:0 0 0 3px rgba(37,79,186,.15); }
   body.lang-ar .login-field{ text-align:right; }
   .login-note{ font-size:calc(.85rem * var(--fs-scale)); color:#8892a0; text-align:center; max-width:420px; margin:0 auto; }
+  .student-badge{ position:absolute; top:.8rem; left:1rem; background:#fff; border:1px solid #e0e0e0; border-radius:999px;
+    padding:.4rem .9rem; font-weight:800; color:var(--blue-700); font-size:calc(.85rem * var(--fs-scale)); cursor:pointer;
+    box-shadow:0 2px 8px rgba(0,0,0,.12); z-index:20; }
+  .student-badge:hover{ background:var(--panel); }
 
   /* ===== Final ===== */
   .results{ display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; gap:.9rem; padding:1rem; text-align:center; }
@@ -321,20 +325,15 @@ const T = {
     resumeMsg:"Hay una actividad sin terminar. ¿Queréis continuar donde lo dejasteis?",
     resumeYes:"Continuar", resumeNo:"Empezar de nuevo",
     autosaveNote:"El progreso se guarda automáticamente en este dispositivo.",
-    loginChoiceText:"¿Quieres guardar tu progreso para poder continuar desde otro ordenador?",
-    loginGuestBtn:"🚀 Jugar sin guardar en la nube",
-    loginCloudBtn:"☁️ Guardar mi progreso (nombre y PIN)",
-    loginFormHelp:"Escribe tu nombre y un PIN de 4 cifras. La primera vez lo creas tú; las siguientes veces úsalo para continuar donde lo dejaste.",
-    loginNameLabel:"Tu nombre",
-    loginPinLabel:"PIN (4 cifras)",
-    loginSubmit:"Entrar",
-    loginConnecting:"Conectando...",
-    back:"← Volver",
-    loginInvalid:"Escribe tu nombre y un PIN de 4 cifras (solo números).",
-    loginPinError:"Ese nombre ya existe y el PIN no coincide. Prueba con otro nombre o revisa tu PIN.",
-    loginNotConfigured:"El guardado en la nube todavía no está activado. Puedes jugar sin guardar mientras tanto.",
-    loginConnError:"No se ha podido conectar. Comprueba la conexión e inténtalo de nuevo.",
-    loginConnectedAs:"Conectado como {name} · el progreso se guarda en la nube",
+    nameHelp:"Escribe tu nombre para que el juego sepa quién eres. Así, si cambiáis de portátil o continuáis otro día, podréis seguir donde lo dejasteis.",
+    nameLabel:"Tu nombre",
+    nameSubmit:"Empezar",
+    nameInvalid:"Escribe tu nombre para continuar.",
+    loginConnecting:"Comprobando...",
+    switchConfirm:"¿Cambiar de alumno/a? Se cerrará la sesión de {name}.",
+    resumeMsgNamed:"Hay una actividad guardada para {name}. ¿Queréis continuar donde la dejasteis?",
+    cloudOk:"Progreso guardado en la nube: se puede continuar desde cualquier ordenador.",
+    cloudError:"No se ha podido guardar en la nube (revisa el Apps Script). De momento solo se guarda en este dispositivo.",
 
     mcq:[
       {q:"¿Por qué cayó Lucía durante la carrera?",
@@ -425,20 +424,15 @@ const T = {
     resumeMsg:"كاين نشاط ماكملتيش. واش بغيتي تكملو من فين وقفتو؟",
     resumeYes:"كمل", resumeNo:"بدا من جديد",
     autosaveNote:"التقدم كيتسجل أوتوماتيكيا فهاد الجهاز.",
-    loginChoiceText:"واش بغيتي تسجل التقدم ديالك باش تقدر تكمل من كمبيوتر آخر؟",
-    loginGuestBtn:"🚀 لعب بلا تسجيل فالسحاب",
-    loginCloudBtn:"☁️ سجل التقدم ديالي (سمية و PIN)",
-    loginFormHelp:"كتب سميتك و PIN ديال 4 أرقام. أول مرة نتا كتخلقو؛ المرات الجايين استعملو باش تكمل من فين وقفتي.",
-    loginNameLabel:"سميتك",
-    loginPinLabel:"PIN (4 أرقام)",
-    loginSubmit:"دخول",
-    loginConnecting:"كيتصل...",
-    back:"← رجوع",
-    loginInvalid:"كتب سميتك و PIN ديال 4 أرقام (غير أرقام).",
-    loginPinError:"هاد السمية كاينة ديجا و PIN ما كيوافقش. جرب سمية أخرى أو تأكد من PIN ديالك.",
-    loginNotConfigured:"التسجيل فالسحاب مازال ماشي مفعل. تقدر تلعب بلا تسجيل فهاد الوقت.",
-    loginConnError:"ما قدرناش نتصلو. تأكد من الاتصال وعاود.",
-    loginConnectedAs:"متصل بحال {name} · التقدم كيتسجل فالسحاب",
+    nameHelp:"كتب سميتك باش اللعبة تعرف شكون نتا. بهاد الشكل، إلا بدلتو الكمبيوتر أو كملتو نهار آخر، تقدرو تكملو من فين وقفتو.",
+    nameLabel:"سميتك",
+    nameSubmit:"بدا",
+    nameInvalid:"كتب سميتك باش تكمل.",
+    loginConnecting:"كيتأكد...",
+    switchConfirm:"واش بغيتي تبدل التلميذ(ة)؟ غادي تسد الجلسة ديال {name}.",
+    resumeMsgNamed:"كاين نشاط محفوظ ديال {name}. واش بغيتي تكملو من فين وقفتو؟",
+    cloudOk:"التقدم متسجل فالسحاب: تقدر تكمل من أي كمبيوتر.",
+    cloudError:"ما قدرناش نسجلو فالسحاب (تأكد من Apps Script). دابا كيتسجل غير فهاد الجهاز.",
 
     mcq:[
       {q:"علاش طاحت لوسيا خلال السباق؟",
@@ -534,9 +528,10 @@ function vibrateWrong(){
   try{ if(navigator.vibrate) navigator.vibrate(120); }catch(e){}
 }
 
-/* ---------------- GUARDADO EN LA NUBE (Google Sheets vía Apps Script) ---------------- */
+/* ---------------- GUARDADO POR NOMBRE (Google Sheets vía Apps Script, + copia local) ---------------- */
 const CLOUD_API_URL = "https://script.google.com/macros/s/AKfycbwYUnB0JDXcmoBNshEhDixgWEnlWAob04h4CQ9N7aEumfw-5M1i2CDoC2C8aEujh9GK/exec";
-let cloudUser = null;
+const GAME_ID = "atedu_companerismo_progress_v1"; // identificador único de esta ficha: cada ficha/juego debe tener el suyo para no mezclar progresos
+let cloudUser = null; // {name}
 let cloudBusy = false;
 
 function cloudConfigured(){
@@ -548,7 +543,7 @@ async function cloudRequest(action, extra){
     const res = await fetch(CLOUD_API_URL, {
       method:"POST",
       headers:{"Content-Type":"text/plain;charset=utf-8"},
-      body: JSON.stringify(Object.assign({action:action}, extra))
+      body: JSON.stringify(Object.assign({action:action, game:GAME_ID}, extra))
     });
     return await res.json();
   }catch(e){
@@ -563,33 +558,88 @@ function scheduleCloudSave(){
 }
 async function cloudSaveNow(){
   if(!cloudUser || state.screen==="final") return;
-  await cloudRequest("save", {name:cloudUser.name, pin:cloudUser.pin, data:buildSnapshot()});
+  const res = await cloudRequest("save", {name:cloudUser.name, data:buildSnapshot()});
+  state.cloudStatus = res.ok ? "ok" : "error";
 }
-async function cloudLogin(name, pin){
+
+function slugName(name){ return name.trim().toLowerCase().replace(/\s+/g,"_"); }
+function localKeyFor(name){ return "atedu_progress_" + GAME_ID + "_" + slugName(name); }
+function loadLocalFor(name){
+  try{
+    const raw = localStorage.getItem(localKeyFor(name));
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ return null; }
+}
+function saveLocalFor(name, data){
+  try{ localStorage.setItem(localKeyFor(name), JSON.stringify(data)); }catch(e){}
+}
+
+async function submitName(){
   const t = tr();
+  const el = document.getElementById("studentName");
+  const name = (el && el.value || "").trim();
+  if(!name){ showModal(t.nameInvalid); render(); return; }
+
+  state.studentName = name;
+  cloudUser = {name:name};
   cloudBusy = true; render();
-  const res = await cloudRequest("login", {name:name, pin:pin});
-  cloudBusy = false;
-  if(!res.ok){
-    if(res.error==="pin_incorrecto") showModal(t.loginPinError);
-    else if(res.error==="no_configurado") showModal(t.loginNotConfigured);
-    else showModal(t.loginConnError);
-    render();
-    return;
-  }
-  cloudUser = {name:name, pin:pin};
-  playSound('completed');
-  if(res.progress){
-    restoreProgress(res.progress);
+
+  let progress = null;
+  if(cloudConfigured()){
+    const res = await cloudRequest("load", {name:name});
+    state.cloudStatus = res.ok ? "ok" : "error";
+    if(res.ok && res.progress) progress = res.progress;
   } else {
-    state.screen = "story";
-    render();
+    state.cloudStatus = "off";
   }
+  if(!progress){
+    progress = loadLocalFor(name);
+  }
+  cloudBusy = false;
+
+  if(progress && progress.screen && progress.screen!=="final" && progress.screen!=="intro" && progress.screen!=="nameScreen"){
+    showModal(t.resumeMsgNamed.replace('{name}', name), ()=>restoreProgress(progress), { onNo:startFreshNamed, yesLabel:t.resumeYes, noLabel:t.resumeNo });
+  } else {
+    startFreshNamed();
+  }
+}
+function startFreshNamed(){
+  playSound('tap');
+  state.screen = "story";
+  render();
+}
+function confirmSwitchStudent(){
+  const t = tr();
+  showModal(t.switchConfirm.replace('{name}', state.studentName||""), doSwitchStudent);
+}
+function doSwitchStudent(){
+  playSound('tap');
+  state.studentName = null;
+  cloudUser = null;
+  state.levelStatus = {mcq:"unlocked",tf:"locked",match:"locked",order:"locked",debate:"locked",write:"locked"};
+  state.scores = {mcq:0,tf:0,match:0,order:0};
+  state.mcqIndex=0; state.mcqAnswered=false; state.mcqSelected=null;
+  state.tfAnswers={}; state.tfChecked=false;
+  state.matchSelLeft=null; state.matchDone={}; state.matchErr=null;
+  state.orderDisplay=null; state.orderChecked=false; state.orderSelected=null;
+  state.writeText=""; state.showKb=false;
+  state.screen = "nameScreen";
+  render();
+}
+function studentBadgeHtml(){
+  if(!state.studentName) return "";
+  const t = tr();
+  let statusIcon = "", statusTitle = "";
+  if(state.cloudStatus==="ok"){ statusIcon = "☁️"; statusTitle = t.cloudOk; }
+  else if(state.cloudStatus==="error"){ statusIcon = "⚠️"; statusTitle = t.cloudError; }
+  return `<div class="student-badge" onclick="confirmSwitchStudent()" title="${esc(tr().switchConfirm.replace('{name}', state.studentName))}">👤 <strong>${esc(state.studentName)}</strong>${statusIcon?` <span title="${esc(statusTitle)}">${statusIcon}</span>`:""}</div>`;
 }
 
 let state = {
   lang:"es",
   screen:"intro",
+  studentName:null,
+  cloudStatus:null,
   levelStatus:{mcq:"unlocked",tf:"locked",match:"locked",order:"locked",debate:"locked",write:"locked"},
   scores:{mcq:0,tf:0,match:0,order:0},
   mcqIndex:0, mcqAnswered:false, mcqSelected:null,
@@ -710,8 +760,7 @@ function render(){
   let inner = "";
 
   if(state.screen==="intro") inner = screenIntro(t);
-  else if(state.screen==="loginChoice") inner = screenLoginChoice(t);
-  else if(state.screen==="loginForm") inner = screenLoginForm(t);
+  else if(state.screen==="nameScreen") inner = screenNameScreen(t);
   else if(state.screen==="story") inner = screenStory(t);
   else if(state.screen==="menu") inner = screenMenu(t);
   else if(state.screen==="mcq") inner = screenMcq(t);
@@ -725,7 +774,7 @@ function render(){
   const changed = state.screen !== lastRenderedScreen;
   lastRenderedScreen = state.screen;
 
-  let html = controlsHtml() + `<section class="screen${changed?' anim':''}">${inner}</section>`;
+  let html = controlsHtml() + studentBadgeHtml() + `<section class="screen${changed?' anim':''}">${inner}</section>`;
 
   if(state.modal){
     html += `<div class="modal-overlay"><div class="modal-content">
@@ -760,63 +809,30 @@ function screenIntro(t){
     <div class="start-content">
       <div class="start-icon">🤝</div>
       <div class="advice-box" ${dirAttr()}>${esc(t.teacherMode)}<strong>${esc(t.startAnimo)}</strong></div>
-      <button class="btn btn-primary" onclick="goLoginChoice()">${esc(t.start)}</button>
+      <button class="btn btn-primary" onclick="goNameScreen()">${esc(t.start)}</button>
       <img class="start-image" src="${IMG_START}" alt="Niños">
     </div>`;
 }
 
 function goStory(){ playSound('tap'); state.screen="story"; render(); }
 
-/* ---- LOGIN / GUARDADO ---- */
-function screenLoginChoice(t){
-  return `<header>
-      <h1 ${dirAttr()}>${esc(t.gameTitle)}</h1>
-      <div class="subtitle" ${dirAttr()}>${esc(t.gameSubtitle)}</div>
-    </header>
-    <div class="start-content">
-      <div class="start-icon">☁️</div>
-      <div class="advice-box" ${dirAttr()}>${esc(t.loginChoiceText)}</div>
-      <button class="btn btn-blue" onclick="goLoginForm()">${esc(t.loginCloudBtn)}</button>
-      <button class="btn btn-ghost" onclick="chooseGuest()">${esc(t.loginGuestBtn)}</button>
-    </div>`;
-}
-function goLoginChoice(){ playSound('tap'); state.screen="loginChoice"; render(); }
-function chooseGuest(){ playSound('tap'); cloudUser=null; state.screen="story"; render(); }
-function goLoginForm(){ playSound('tap'); state.screen="loginForm"; render(); }
+/* ---- NOMBRE DEL ALUMNO / GUARDADO ---- */
+function goNameScreen(){ playSound('tap'); state.screen="nameScreen"; render(); }
 
-function screenLoginForm(t){
+function screenNameScreen(t){
   return `<header>
       <h1 ${dirAttr()}>${esc(t.gameTitle)}</h1>
       <div class="subtitle" ${dirAttr()}>${esc(t.gameSubtitle)}</div>
     </header>
     <div class="start-content">
-      <p class="login-note" ${dirAttr()}>${esc(t.loginFormHelp)}</p>
+      <div class="start-icon">🙋</div>
+      <p class="login-note" ${dirAttr()}>${esc(t.nameHelp)}</p>
       <div class="login-field" ${dirAttr()}>
-        <label for="loginName">${esc(t.loginNameLabel)}</label>
-        <input id="loginName" type="text" maxlength="30" autocomplete="off">
+        <label for="studentName">${esc(t.nameLabel)}</label>
+        <input id="studentName" type="text" maxlength="30" autocomplete="off">
       </div>
-      <div class="login-field" ${dirAttr()}>
-        <label for="loginPin">${esc(t.loginPinLabel)}</label>
-        <input id="loginPin" type="tel" inputmode="numeric" maxlength="4" pattern="[0-9]*" autocomplete="off">
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-ghost" ${cloudBusy?"disabled":""} onclick="goLoginChoice()">${esc(t.back)}</button>
-        <button class="btn btn-primary" ${cloudBusy?"disabled":""} onclick="submitLogin()">${esc(cloudBusy?t.loginConnecting:t.loginSubmit)}</button>
-      </div>
+      <button class="btn btn-primary" ${cloudBusy?"disabled":""} onclick="submitName()">${esc(cloudBusy?t.loginConnecting:t.nameSubmit)}</button>
     </div>`;
-}
-function submitLogin(){
-  const t = tr();
-  const nameEl = document.getElementById("loginName");
-  const pinEl = document.getElementById("loginPin");
-  const name = (nameEl && nameEl.value || "").trim();
-  const pin = (pinEl && pinEl.value || "").trim();
-  if(!name || !/^[0-9]{4}$/.test(pin)){
-    showModal(t.loginInvalid);
-    render();
-    return;
-  }
-  cloudLogin(name, pin);
 }
 
 function highlightNames(text, names){
@@ -874,7 +890,6 @@ function screenMenu(t){
         <button class="btn btn-ghost" onclick="confirmReset()">${esc(t.resetAll)}</button>
       </div>
       <p class="footnote" ${dirAttr()}>💾 ${esc(t.autosaveNote)}</p>
-      ${cloudUser?`<p class="footnote" ${dirAttr()}>☁️ ${esc(t.loginConnectedAs.replace('{name}', cloudUser.name))}</p>`:""}
     </div>`;
 }
 
@@ -1297,7 +1312,6 @@ function createConfetti(){
 }
 
 /* ---------------- AUTOSAVE ---------------- */
-const SAVE_KEY = "atedu_companerismo_progress_v1";
 let saveTimer = null;
 function scheduleSave(){ clearTimeout(saveTimer); saveTimer = setTimeout(saveProgress, 400); }
 function buildSnapshot(){
@@ -1317,21 +1331,9 @@ function buildSnapshot(){
   };
 }
 function saveProgress(){
-  try{
-    if(state.screen==="final") return;
-    localStorage.setItem(SAVE_KEY, JSON.stringify(buildSnapshot()));
-  }catch(e){ /* localStorage not critical, ignore */ }
+  if(state.screen==="final" || state.screen==="intro" || state.screen==="nameScreen") return;
+  if(state.studentName) saveLocalFor(state.studentName, buildSnapshot());
   if(cloudUser) scheduleCloudSave();
-}
-function loadProgress(){
-  try{
-    const raw = localStorage.getItem(SAVE_KEY);
-    if(!raw) return null;
-    return JSON.parse(raw);
-  }catch(e){ return null; }
-}
-function clearProgress(){
-  try{ localStorage.removeItem(SAVE_KEY); }catch(e){}
 }
 function restoreProgress(saved){
   state.lang = saved.lang || "es";
@@ -1362,17 +1364,7 @@ window.addEventListener('load', ()=>{
 
 /* ---------------- INIT ---------------- */
 (function init(){
-  const saved = loadProgress();
-  const hasProgress = saved && saved.screen && saved.screen!=="intro" && saved.screen!=="final" && saved.screen!=="loginChoice" && saved.screen!=="loginForm";
-  if(hasProgress){
-    state.lang = saved.lang || "es";
-    document.body.classList.toggle("lang-ar", state.lang==="ar");
-    document.documentElement.lang = state.lang;
-    const t = tr();
-    showModal(t.resumeMsg, ()=>restoreProgress(saved), { onNo:clearProgress, yesLabel:t.resumeYes, noLabel:t.resumeNo });
-  } else {
-    render();
-  }
+  render();
 })();
 </script>
 </body>
