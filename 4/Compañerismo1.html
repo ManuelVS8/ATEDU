@@ -217,6 +217,15 @@
   .kb-key.wide{ width:64px; font-weight:800; background:var(--blue-600); color:#fff; border-color:var(--blue-600); }
   .kb-key.space{ width:140px; }
 
+  /* ===== Login / guardado en la nube ===== */
+  .login-field{ width:100%; max-width:420px; margin:0 auto .9rem; text-align:left; }
+  .login-field label{ display:block; font-weight:700; color:var(--blue-700); margin-bottom:.3rem; font-size:calc(.95rem * var(--fs-scale)); }
+  .login-field input{ width:100%; padding:.8rem 1rem; border-radius:10px; border:2px solid #d3e2ff; font-size:calc(1.05rem * var(--fs-scale));
+    font-family:inherit; color:var(--blue-dark); }
+  .login-field input:focus{ outline:none; border-color:var(--blue-600); box-shadow:0 0 0 3px rgba(37,79,186,.15); }
+  body.lang-ar .login-field{ text-align:right; }
+  .login-note{ font-size:calc(.85rem * var(--fs-scale)); color:#8892a0; text-align:center; max-width:420px; margin:0 auto; }
+
   /* ===== Final ===== */
   .results{ display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; gap:.9rem; padding:1rem; text-align:center; }
   .trophy{ font-size:clamp(4rem,12vw,5.5rem); animation:bounce 1s ease infinite; line-height:1; }
@@ -312,6 +321,20 @@ const T = {
     resumeMsg:"Hay una actividad sin terminar. ¿Queréis continuar donde lo dejasteis?",
     resumeYes:"Continuar", resumeNo:"Empezar de nuevo",
     autosaveNote:"El progreso se guarda automáticamente en este dispositivo.",
+    loginChoiceText:"¿Quieres guardar tu progreso para poder continuar desde otro ordenador?",
+    loginGuestBtn:"🚀 Jugar sin guardar en la nube",
+    loginCloudBtn:"☁️ Guardar mi progreso (nombre y PIN)",
+    loginFormHelp:"Escribe tu nombre y un PIN de 4 cifras. La primera vez lo creas tú; las siguientes veces úsalo para continuar donde lo dejaste.",
+    loginNameLabel:"Tu nombre",
+    loginPinLabel:"PIN (4 cifras)",
+    loginSubmit:"Entrar",
+    loginConnecting:"Conectando...",
+    back:"← Volver",
+    loginInvalid:"Escribe tu nombre y un PIN de 4 cifras (solo números).",
+    loginPinError:"Ese nombre ya existe y el PIN no coincide. Prueba con otro nombre o revisa tu PIN.",
+    loginNotConfigured:"El guardado en la nube todavía no está activado. Puedes jugar sin guardar mientras tanto.",
+    loginConnError:"No se ha podido conectar. Comprueba la conexión e inténtalo de nuevo.",
+    loginConnectedAs:"Conectado como {name} · el progreso se guarda en la nube",
 
     mcq:[
       {q:"¿Por qué cayó Lucía durante la carrera?",
@@ -402,6 +425,20 @@ const T = {
     resumeMsg:"كاين نشاط ماكملتيش. واش بغيتي تكملو من فين وقفتو؟",
     resumeYes:"كمل", resumeNo:"بدا من جديد",
     autosaveNote:"التقدم كيتسجل أوتوماتيكيا فهاد الجهاز.",
+    loginChoiceText:"واش بغيتي تسجل التقدم ديالك باش تقدر تكمل من كمبيوتر آخر؟",
+    loginGuestBtn:"🚀 لعب بلا تسجيل فالسحاب",
+    loginCloudBtn:"☁️ سجل التقدم ديالي (سمية و PIN)",
+    loginFormHelp:"كتب سميتك و PIN ديال 4 أرقام. أول مرة نتا كتخلقو؛ المرات الجايين استعملو باش تكمل من فين وقفتي.",
+    loginNameLabel:"سميتك",
+    loginPinLabel:"PIN (4 أرقام)",
+    loginSubmit:"دخول",
+    loginConnecting:"كيتصل...",
+    back:"← رجوع",
+    loginInvalid:"كتب سميتك و PIN ديال 4 أرقام (غير أرقام).",
+    loginPinError:"هاد السمية كاينة ديجا و PIN ما كيوافقش. جرب سمية أخرى أو تأكد من PIN ديالك.",
+    loginNotConfigured:"التسجيل فالسحاب مازال ماشي مفعل. تقدر تلعب بلا تسجيل فهاد الوقت.",
+    loginConnError:"ما قدرناش نتصلو. تأكد من الاتصال وعاود.",
+    loginConnectedAs:"متصل بحال {name} · التقدم كيتسجل فالسحاب",
 
     mcq:[
       {q:"علاش طاحت لوسيا خلال السباق؟",
@@ -495,6 +532,59 @@ function playSound(name){
 }
 function vibrateWrong(){
   try{ if(navigator.vibrate) navigator.vibrate(120); }catch(e){}
+}
+
+/* ---------------- GUARDADO EN LA NUBE (Google Sheets vía Apps Script) ---------------- */
+const CLOUD_API_URL = "https://script.google.com/macros/s/AKfycbwYUnB0JDXcmoBNshEhDixgWEnlWAob04h4CQ9N7aEumfw-5M1i2CDoC2C8aEujh9GK/exec";
+let cloudUser = null;
+let cloudBusy = false;
+
+function cloudConfigured(){
+  return CLOUD_API_URL && CLOUD_API_URL.indexOf("PON_AQUI")!==0;
+}
+async function cloudRequest(action, extra){
+  if(!cloudConfigured()) return {ok:false, error:"no_configurado"};
+  try{
+    const res = await fetch(CLOUD_API_URL, {
+      method:"POST",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body: JSON.stringify(Object.assign({action:action}, extra))
+    });
+    return await res.json();
+  }catch(e){
+    return {ok:false, error:"red"};
+  }
+}
+let cloudSaveTimer = null;
+function scheduleCloudSave(){
+  if(!cloudUser) return;
+  clearTimeout(cloudSaveTimer);
+  cloudSaveTimer = setTimeout(cloudSaveNow, 700);
+}
+async function cloudSaveNow(){
+  if(!cloudUser || state.screen==="final") return;
+  await cloudRequest("save", {name:cloudUser.name, pin:cloudUser.pin, data:buildSnapshot()});
+}
+async function cloudLogin(name, pin){
+  const t = tr();
+  cloudBusy = true; render();
+  const res = await cloudRequest("login", {name:name, pin:pin});
+  cloudBusy = false;
+  if(!res.ok){
+    if(res.error==="pin_incorrecto") showModal(t.loginPinError);
+    else if(res.error==="no_configurado") showModal(t.loginNotConfigured);
+    else showModal(t.loginConnError);
+    render();
+    return;
+  }
+  cloudUser = {name:name, pin:pin};
+  playSound('completed');
+  if(res.progress){
+    restoreProgress(res.progress);
+  } else {
+    state.screen = "story";
+    render();
+  }
 }
 
 let state = {
@@ -620,6 +710,8 @@ function render(){
   let inner = "";
 
   if(state.screen==="intro") inner = screenIntro(t);
+  else if(state.screen==="loginChoice") inner = screenLoginChoice(t);
+  else if(state.screen==="loginForm") inner = screenLoginForm(t);
   else if(state.screen==="story") inner = screenStory(t);
   else if(state.screen==="menu") inner = screenMenu(t);
   else if(state.screen==="mcq") inner = screenMcq(t);
@@ -668,12 +760,64 @@ function screenIntro(t){
     <div class="start-content">
       <div class="start-icon">🤝</div>
       <div class="advice-box" ${dirAttr()}>${esc(t.teacherMode)}<strong>${esc(t.startAnimo)}</strong></div>
-      <button class="btn btn-primary" onclick="goStory()">${esc(t.start)}</button>
+      <button class="btn btn-primary" onclick="goLoginChoice()">${esc(t.start)}</button>
       <img class="start-image" src="${IMG_START}" alt="Niños">
     </div>`;
 }
 
 function goStory(){ playSound('tap'); state.screen="story"; render(); }
+
+/* ---- LOGIN / GUARDADO ---- */
+function screenLoginChoice(t){
+  return `<header>
+      <h1 ${dirAttr()}>${esc(t.gameTitle)}</h1>
+      <div class="subtitle" ${dirAttr()}>${esc(t.gameSubtitle)}</div>
+    </header>
+    <div class="start-content">
+      <div class="start-icon">☁️</div>
+      <div class="advice-box" ${dirAttr()}>${esc(t.loginChoiceText)}</div>
+      <button class="btn btn-blue" onclick="goLoginForm()">${esc(t.loginCloudBtn)}</button>
+      <button class="btn btn-ghost" onclick="chooseGuest()">${esc(t.loginGuestBtn)}</button>
+    </div>`;
+}
+function goLoginChoice(){ playSound('tap'); state.screen="loginChoice"; render(); }
+function chooseGuest(){ playSound('tap'); cloudUser=null; state.screen="story"; render(); }
+function goLoginForm(){ playSound('tap'); state.screen="loginForm"; render(); }
+
+function screenLoginForm(t){
+  return `<header>
+      <h1 ${dirAttr()}>${esc(t.gameTitle)}</h1>
+      <div class="subtitle" ${dirAttr()}>${esc(t.gameSubtitle)}</div>
+    </header>
+    <div class="start-content">
+      <p class="login-note" ${dirAttr()}>${esc(t.loginFormHelp)}</p>
+      <div class="login-field" ${dirAttr()}>
+        <label for="loginName">${esc(t.loginNameLabel)}</label>
+        <input id="loginName" type="text" maxlength="30" autocomplete="off">
+      </div>
+      <div class="login-field" ${dirAttr()}>
+        <label for="loginPin">${esc(t.loginPinLabel)}</label>
+        <input id="loginPin" type="tel" inputmode="numeric" maxlength="4" pattern="[0-9]*" autocomplete="off">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" ${cloudBusy?"disabled":""} onclick="goLoginChoice()">${esc(t.back)}</button>
+        <button class="btn btn-primary" ${cloudBusy?"disabled":""} onclick="submitLogin()">${esc(cloudBusy?t.loginConnecting:t.loginSubmit)}</button>
+      </div>
+    </div>`;
+}
+function submitLogin(){
+  const t = tr();
+  const nameEl = document.getElementById("loginName");
+  const pinEl = document.getElementById("loginPin");
+  const name = (nameEl && nameEl.value || "").trim();
+  const pin = (pinEl && pinEl.value || "").trim();
+  if(!name || !/^[0-9]{4}$/.test(pin)){
+    showModal(t.loginInvalid);
+    render();
+    return;
+  }
+  cloudLogin(name, pin);
+}
 
 function highlightNames(text, names){
   let out = esc(text);
@@ -730,6 +874,7 @@ function screenMenu(t){
         <button class="btn btn-ghost" onclick="confirmReset()">${esc(t.resetAll)}</button>
       </div>
       <p class="footnote" ${dirAttr()}>💾 ${esc(t.autosaveNote)}</p>
+      ${cloudUser?`<p class="footnote" ${dirAttr()}>☁️ ${esc(t.loginConnectedAs.replace('{name}', cloudUser.name))}</p>`:""}
     </div>`;
 }
 
@@ -1155,25 +1300,28 @@ function createConfetti(){
 const SAVE_KEY = "atedu_companerismo_progress_v1";
 let saveTimer = null;
 function scheduleSave(){ clearTimeout(saveTimer); saveTimer = setTimeout(saveProgress, 400); }
+function buildSnapshot(){
+  return {
+    lang: state.lang,
+    fontScale: state.fontScale,
+    screen: state.screen,
+    levelStatus: state.levelStatus,
+    scores: state.scores,
+    mcqIndex: state.mcqIndex,
+    tfAnswers: state.tfAnswers,
+    tfChecked: state.tfChecked,
+    matchDone: state.matchDone,
+    orderDisplay: state.orderDisplay,
+    orderChecked: state.orderChecked,
+    writeText: state.writeText
+  };
+}
 function saveProgress(){
   try{
     if(state.screen==="final") return;
-    const snapshot = {
-      lang: state.lang,
-      fontScale: state.fontScale,
-      screen: state.screen,
-      levelStatus: state.levelStatus,
-      scores: state.scores,
-      mcqIndex: state.mcqIndex,
-      tfAnswers: state.tfAnswers,
-      tfChecked: state.tfChecked,
-      matchDone: state.matchDone,
-      orderDisplay: state.orderDisplay,
-      orderChecked: state.orderChecked,
-      writeText: state.writeText
-    };
-    localStorage.setItem(SAVE_KEY, JSON.stringify(snapshot));
+    localStorage.setItem(SAVE_KEY, JSON.stringify(buildSnapshot()));
   }catch(e){ /* localStorage not critical, ignore */ }
+  if(cloudUser) scheduleCloudSave();
 }
 function loadProgress(){
   try{
@@ -1215,7 +1363,7 @@ window.addEventListener('load', ()=>{
 /* ---------------- INIT ---------------- */
 (function init(){
   const saved = loadProgress();
-  const hasProgress = saved && saved.screen && saved.screen!=="intro" && saved.screen!=="final";
+  const hasProgress = saved && saved.screen && saved.screen!=="intro" && saved.screen!=="final" && saved.screen!=="loginChoice" && saved.screen!=="loginForm";
   if(hasProgress){
     state.lang = saved.lang || "es";
     document.body.classList.toggle("lang-ar", state.lang==="ar");
