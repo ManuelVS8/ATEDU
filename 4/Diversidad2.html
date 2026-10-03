@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="es" translate="no" class="notranslate">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta name="google" content="notranslate">
+<title>ATEDU · Diversidad — Un partido a ciegas</title>
+<link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/ManuelVS8/Audios-juegos-SCIENCE/refs/heads/main/icono.ico">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  :root{
+    --blue:#001DFF;
+    --blue-dark:#04032B;
+    --blue-700:#1a3a5f;
+    --blue-600:#254fba;
+    --orange:#f59e42;
+    --orange-700:#e67e22;
+    --bg-grad-1:#1a3a5f;
+    --bg-grad-2:#0d2340;
+    --white:#ffffff;
+    --green:#2ecc71;
+    --green-dark:#1e9e57;
+    --red:#e74c3c;
+    --panel:#E8EAFF;
+    --fs-scale:1;
+  }
+  body{
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background:linear-gradient(135deg, var(--bg-grad-1) 0%, var(--bg-grad-2) 100%);
+    min-height:100vh; display:flex; justify-content:center; align-items:flex-start;
+    padding:20px 12px; color:#333;
+  }
+  body.lang-ar{ font-family:'Segoe UI', Tahoma, 'Geeza Pro', Arial, sans-serif; }
+
+  .game-container{
+    background:var(--white); border-radius:16px; box-shadow:0 12px 24px rgba(0,0,0,.12);
+    padding:1.2rem; max-width:980px; width:100%; min-height:640px; position:relative; overflow:hidden;
+    display:flex; flex-direction:column; margin-bottom:2rem;
+  }
+
+  /* ===== Cabecera ===== */
+  header{ text-align:center; margin-bottom:.6rem; margin-top:3.2rem; }
+  h1{ color:var(--blue-dark); font-size:calc(clamp(1.6rem,4.5vw,2.6rem) * var(--fs-scale)); font-weight:900; letter-spacing:.5px; line-height:1.15; }
+  .subtitle{ color:var(--blue-700); font-size:calc(clamp(.95rem,3vw,1.15rem) * var(--fs-scale)); margin-top:.3rem; font-weight:600; }
+  .highlight-keyword{ color:var(--orange); font-weight:800; }
+  .keyword{ color:var(--blue-600); font-weight:900; }
+  .instructions{ color:var(--blue-700); text-align:center; font-size:calc(clamp(.9rem,2.3vw,1.02rem) * var(--fs-scale)); margin:0 auto .9rem; max-width:720px; }
+
+  /* ===== Botones ===== */
+  .btn{ color:#fff; border:none; padding:.75rem 1.2rem; border-radius:10px; cursor:pointer; font-weight:800; font-family:inherit;
+    transition:transform .08s ease, box-shadow .2s ease, background-color .25s ease; min-width:140px; min-height:48px;
+    display:inline-flex; align-items:center; justify-content:center; gap:.4rem; font-size:calc(1rem * var(--fs-scale)); }
+  .btn:hover{ transform:translateY(-2px); box-shadow:0 6px 14px rgba(0,0,0,.12); }
+  .btn:active{ transform:translateY(0) scale(.97); }
+  .btn-primary{ background:var(--orange); }
+  .btn-primary:hover{ background:var(--orange-700); }
+  .btn-blue{ background:var(--blue-600); }
+  .btn-blue:hover{ filter:brightness(.9); }
+  .btn-ghost{ background:#e6f2ff; color:var(--blue-700); }
+  .btn:disabled{ opacity:.45; cursor:not-allowed; transform:none; box-shadow:none; }
+  .btn-row{ display:flex; gap:.7rem; justify-content:center; flex-wrap:wrap; margin-top:1.2rem; }
+
+  /* ===== Pantallas ===== */
+  .screen{ display:flex; flex-direction:column; flex:1; }
+  .screen.anim{ animation:fadeIn .35s ease; }
+  @keyframes fadeIn{ from{opacity:0;transform:translateY(12px);} to{opacity:1;transform:translateY(0);} }
+  @keyframes shakeAnim{ 0%,100%{transform:translateX(0);} 20%{transform:translateX(-5px);} 40%{transform:translateX(5px);} 60%{transform:translateX(-5px);} 80%{transform:translateX(5px);} }
+  .content{ width:100%; max-width:760px; margin:0 auto; display:flex; flex-direction:column; }
+
+  /* ===== Controles superiores ===== */
+  .top-controls{ position:absolute; top:.8rem; right:1rem; display:flex; align-items:center; gap:8px; z-index:20; }
+  .lang-pill, .font-pill{ display:flex; align-items:center; background:#fff; border-radius:999px; padding:3px; gap:3px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.12); border:1px solid #e0e0e0; }
+  .lang-pill button{ width:34px; height:34px; border-radius:50%; border:none; font-size:1.15rem; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; background:transparent; transition:background .2s, opacity .2s, transform .15s; }
+  .lang-pill button.active-lang{ background:var(--blue-600); transform:scale(1.08); }
+  .lang-pill button:not(.active-lang){ opacity:.5; }
+  .lang-pill button:hover:not(.active-lang){ opacity:.8; transform:scale(1.05); }
+  .font-pill button{ width:34px; height:34px; border-radius:50%; border:none; background:transparent; color:var(--blue-600);
+    font-weight:900; font-size:.85rem; cursor:pointer; font-family:inherit; transition:background .2s, color .2s; }
+  .font-pill button:hover{ background:var(--panel); }
+  .font-pill button:active{ background:var(--blue-600); color:#fff; }
+  .mute-btn{ background:linear-gradient(135deg, var(--orange), var(--orange-700)); color:#fff; border:2px solid #fff;
+    width:38px; height:38px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:transform .2s, box-shadow .2s; box-shadow:0 2px 8px rgba(0,0,0,0.12); }
+  .mute-btn:hover{ transform:scale(1.1); box-shadow:0 4px 12px rgba(245,158,66,.4); }
+  .mute-btn.muted{ background:linear-gradient(135deg,#999,#777); }
+  .mute-btn svg{ width:20px; height:20px; pointer-events:none; }
+
+  /* ===== Barra de progreso ===== */
+  .game-info{ display:flex; gap:.7rem; align-items:center; justify-content:space-between; margin:.3rem auto 1rem; width:100%; max-width:760px; }
+  .level-indicator{ font-weight:900; color:var(--orange-700); font-size:clamp(.9rem,2.3vw,1.1rem); white-space:nowrap; }
+  .counter{ font-weight:900; color:var(--blue-700); font-size:clamp(.9rem,2.3vw,1.1rem); white-space:nowrap; }
+  .progress-bar{ flex:1; height:10px; background:#e6f2ff; border-radius:999px; overflow:hidden; }
+  .progress-fill{ height:100%; width:0%; background:linear-gradient(90deg, var(--orange) 0%, var(--orange-700) 100%); transition:width .3s ease; }
+
+  /* ===== Inicio ===== */
+  .start-content{ display:flex; flex-direction:column; justify-content:center; align-items:center; flex:1; gap:1rem; padding:1rem; }
+  .advice-box{ background:var(--panel); border-left:4px solid var(--blue-700); padding:1rem 1.2rem; border-radius:12px;
+    color:var(--blue-700); max-width:760px; width:100%; text-align:center; font-size:calc(clamp(1rem,3vw,1.15rem) * var(--fs-scale)); line-height:1.55; }
+  .advice-box strong{ display:block; margin-top:.5rem; font-size:1.15em; }
+  .start-icon{ font-size:3.2rem; line-height:1; }
+  .start-image{ max-width:300px; width:100%; margin:0 auto; }
+
+  /* ===== Lectura ===== */
+  .story-block{ background:#E8EAFF; border:2px solid var(--blue-600); border-radius:16px; padding:1.4rem 1.6rem; }
+  .story-block p{ color:var(--blue-dark); line-height:1.75; font-size:calc(clamp(.95rem,2.4vw,1.08rem) * var(--fs-scale)); margin-bottom:.9rem; }
+  .story-block p:last-child{ margin-bottom:0; }
+  .story-block .keyword{ color:var(--blue-600); }
+
+  /* ===== Menú de actividades ===== */
+  .level-list{ display:flex; flex-direction:column; gap:.7rem; }
+  .level-row{ display:flex; align-items:center; gap:.9rem; padding:.85rem 1rem; border-radius:12px; border:2px solid #d3e2ff;
+    background:#fff; cursor:pointer; transition:transform .2s ease, box-shadow .2s ease; }
+  .level-row:not(.locked):hover{ transform:translateY(-3px); box-shadow:0 8px 16px rgba(0,0,0,.08); }
+  .level-icon{ width:46px; height:46px; border-radius:50%; background:var(--panel); display:flex; align-items:center; justify-content:center; font-size:1.4rem; flex-shrink:0; }
+  .level-info{ flex:1; }
+  .level-name{ font-weight:800; color:var(--blue-dark); font-size:calc(clamp(1rem,2.5vw,1.12rem) * var(--fs-scale)); }
+  .level-state{ font-weight:700; font-size:calc(.85rem * var(--fs-scale)); margin-top:.15rem; }
+  .level-go{ font-size:1.3rem; font-weight:900; color:var(--orange); flex-shrink:0; }
+  .level-row.current{ border-color:var(--orange); background:#FFF1E0; }
+  .level-row.current .level-icon{ background:var(--orange); }
+  .level-row.current .level-state{ color:var(--orange-700); }
+  .level-row.done{ border-color:var(--green); background:#eafaf1; }
+  .level-row.done .level-icon{ background:#c8f1d9; }
+  .level-row.done .level-state{ color:var(--green-dark); }
+  .level-row.done .level-go{ color:var(--green-dark); }
+  .level-row.locked{ background:#f3f4f7; border-color:#e1e4ea; opacity:.6; cursor:not-allowed; }
+  .level-row.locked .level-state{ color:#8892a0; }
+  .footnote{ font-size:calc(.8rem * var(--fs-scale)); color:#8892a0; text-align:center; margin-top:.9rem; }
+
+  /* ===== Preguntas (Test) ===== */
+  .question-text{ font-size:calc(clamp(1.05rem,2.5vw,1.35rem) * var(--fs-scale)); font-weight:600; color:var(--blue-dark); margin-bottom:1.2rem;
+    text-align:center; background:var(--panel); padding:1.1rem 1.2rem; border-radius:10px; border-left:5px solid var(--blue-600); line-height:1.45; }
+  .options-grid{ display:grid; gap:10px; width:100%; }
+  .option-btn{ background:#fff; border:2px solid var(--blue-600); color:var(--blue-600); padding:1rem 15px; border-radius:10px;
+    font-size:calc(clamp(.95rem,2vw,1.08rem) * var(--fs-scale)); cursor:pointer; transition:all .2s; text-align:left; font-weight:600; font-family:inherit; line-height:1.35; }
+  body.lang-ar .option-btn{ text-align:right; }
+  .option-btn:hover:not(:disabled){ background:#f8f9fa; transform:scale(1.02); }
+  .option-btn:disabled{ cursor:default; }
+  .option-btn.correct{ background:var(--green); color:#fff; border-color:var(--green); }
+  .option-btn.wrong{ background:var(--red); color:#fff; border-color:var(--red); animation:shakeAnim .4s ease-in-out; }
+  .feedback-msg{ text-align:center; font-weight:800; padding:.7rem; border-radius:10px; margin-top:1rem; font-size:calc(1.05rem * var(--fs-scale)); }
+  .feedback-msg.ok{ background:#eafaf1; color:var(--green-dark); }
+  .feedback-msg.bad{ background:#fdeceb; color:var(--red); }
+
+  /* ===== Verdadero / Falso ===== */
+  .tf-list{ display:flex; flex-direction:column; gap:.6rem; }
+  .tf-row{ display:flex; align-items:center; gap:.8rem; padding:.8rem 1rem; border-radius:12px; border:2px solid #d3e2ff; background:#fff; transition:border-color .2s, background .2s; }
+  .tf-text{ flex:1; font-weight:700; color:var(--blue-dark); font-size:calc(clamp(.9rem,2vw,1.05rem) * var(--fs-scale)); line-height:1.4; }
+  .tf-btns{ display:flex; gap:.4rem; flex-shrink:0; }
+  .tf-btns button{ width:44px; height:44px; border-radius:10px; border:2px solid var(--blue-600); background:#fff; color:var(--blue-600);
+    font-weight:900; font-size:calc(1rem * var(--fs-scale)); cursor:pointer; font-family:inherit; transition:all .15s; }
+  .tf-btns button:hover:not(:disabled){ transform:scale(1.08); }
+  .tf-btns button.sel{ background:var(--blue-600); color:#fff; }
+  .tf-btns button:disabled{ cursor:default; }
+  .tf-row.ok{ border-color:var(--green); background:#eafaf1; }
+  .tf-row.ok .tf-text{ color:var(--green-dark); }
+  .tf-row.ok .tf-btns button.sel{ background:var(--green); border-color:var(--green); }
+  .tf-row.bad{ border-color:var(--red); background:#fdeceb; animation:shakeAnim .4s ease; }
+  .tf-row.bad .tf-text{ color:var(--red); }
+  .tf-row.bad .tf-btns button.sel{ background:var(--red); border-color:var(--red); }
+  .score-box{ text-align:center; font-weight:900; color:var(--blue-700); background:var(--panel); border-radius:12px; padding:.8rem; margin-top:1rem; font-size:calc(1.15rem * var(--fs-scale)); }
+
+  /* ===== Emparejar ===== */
+  .match-cols{ display:flex; gap:10px; width:100%; }
+  .match-col{ flex:1; display:flex; flex-direction:column; gap:8px; }
+  .match-col.left{ flex:1.6; }
+  .match-col.right .memory-card{ flex:1; font-size:calc(clamp(1rem,2.8vw,1.25rem) * var(--fs-scale)); }
+  .memory-card{ background-color:var(--blue-600); color:#fff; border:3px solid transparent; border-radius:10px; padding:12px 10px; cursor:pointer;
+    transition:background-color .2s ease, box-shadow .2s ease, transform .15s ease; text-align:center; min-height:64px;
+    display:flex; align-items:center; justify-content:center; font-size:calc(clamp(.85rem,2.3vw,1rem) * var(--fs-scale)); font-weight:700;
+    user-select:none; word-break:break-word; box-shadow:0 2px 6px rgba(0,0,0,.08); line-height:1.3; }
+  .memory-card:hover:not(.sel):not(.done):not(.err){ transform:scale(1.02); box-shadow:0 4px 10px rgba(0,0,0,.18); }
+  .memory-card.sel{ background-color:var(--orange); animation:cardPulse 1s ease-in-out infinite; }
+  @keyframes cardPulse{ 0%,100%{transform:scale(1.02);} 50%{transform:scale(1.05);} }
+  .memory-card.done{ background-color:var(--green); cursor:default; animation:none; transform:none; box-shadow:0 3px 10px rgba(46,204,113,.35); }
+  .memory-card.err{ background-color:var(--red) !important; animation:shakeAnim .4s ease-in-out; }
+
+  /* ===== Ordenar ===== */
+  .phase-card{ border:2px solid #b7e4c7; border-radius:12px; padding:.8rem 1rem; margin-bottom:.8rem; display:flex; align-items:center; gap:.8rem;
+    transition:all .3s ease; cursor:pointer; background:#f8fff9; }
+  .phase-card:hover{ transform:translateY(-3px); box-shadow:0 8px 16px rgba(0,0,0,.08); }
+  .phase-card.selected{ border-color:var(--orange); background:#FFF1E0; box-shadow:0 0 0 3px rgba(245,158,66,.25); }
+  .phase-num{ min-width:32px; height:32px; border-radius:50%; background:var(--blue-600); color:#fff; display:flex; align-items:center; justify-content:center;
+    font-weight:900; font-size:calc(.95rem * var(--fs-scale)); flex-shrink:0; }
+  .phase-text{ flex:1; font-weight:700; font-size:calc(clamp(.9rem,2vw,1.08rem) * var(--fs-scale)); color:var(--blue-dark); text-align:left; line-height:1.4; }
+  body.lang-ar .phase-text{ text-align:right; }
+  .phase-controls{ display:flex; gap:.4rem; flex-shrink:0; }
+  .phase-btn{ width:40px; height:40px; border-radius:8px; background:var(--orange); border:none; color:#fff; font-weight:800; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; transition:all .2s ease; }
+  .phase-btn:hover:not(:disabled){ background:var(--orange-700); transform:scale(1.1); }
+  .phase-btn:disabled{ background:#ccc; cursor:not-allowed; opacity:.5; }
+  .phase-card.ok, .phase-card.bad{ cursor:default; }
+  .phase-card.ok{ border-color:var(--green); background:#eafaf1; }
+  .phase-card.ok .phase-text{ color:var(--green-dark); font-weight:900; }
+  .phase-card.ok .phase-num{ background:var(--green); }
+  .phase-card.bad{ border-color:var(--red); background:#fdeceb; animation:shakeAnim .4s ease; }
+  .phase-card.bad .phase-text{ color:var(--red); font-weight:900; }
+  .phase-card.bad .phase-num{ background:var(--red); }
+
+  /* ===== Debate ===== */
+  .debate-icon{ font-size:4rem; text-align:center; margin:.5rem 0 1rem; animation:bounce 2s ease infinite; }
+  .debate-box{ font-size:calc(clamp(1.1rem,3vw,1.4rem) * var(--fs-scale)); font-weight:700; }
+
+  /* ===== Compromiso escrito ===== */
+  textarea{ width:100%; min-height:150px; border-radius:12px; border:2px solid #d3e2ff; padding:1rem; font-size:calc(1.05rem * var(--fs-scale));
+    font-family:inherit; resize:vertical; line-height:1.55; color:var(--blue-dark); margin-top:1rem; transition:border-color .2s, box-shadow .2s; }
+  textarea:focus{ outline:none; border-color:var(--blue-600); box-shadow:0 0 0 3px rgba(37,79,186,.15); }
+  textarea.rtl{ direction:rtl; text-align:right; }
+  .keyboard-toggle{ margin-top:.8rem; align-self:center; }
+  .keyboard{ margin-top:.8rem; background:var(--panel); border-radius:12px; padding:10px; }
+  .kb-row{ display:flex; gap:4px; margin-bottom:4px; justify-content:center; flex-wrap:nowrap; }
+  .kb-key{ background:#fff; border:1px solid #d3e2ff; border-radius:7px; padding:8px 0; width:30px; text-align:center; font-size:15px; cursor:pointer;
+    flex-shrink:1; color:var(--blue-dark); font-family:inherit; box-shadow:0 1px 2px rgba(0,0,0,.06); }
+  .kb-key:active{ background:var(--blue-600); color:#fff; }
+  .kb-key.wide{ width:64px; font-weight:800; background:var(--blue-600); color:#fff; border-color:var(--blue-600); }
+  .kb-key.space{ width:140px; }
+
+  /* ===== Login / guardado en la nube ===== */
+  .login-field{ width:100%; max-width:420px; margin:0 auto .9rem; text-align:left; }
+  .login-field label{ display:block; font-weight:700; color:var(--blue-700); margin-bottom:.3rem; font-size:calc(.95rem * var(--fs-scale)); }
+  .login-field input{ width:100%; padding:.8rem 1rem; border-radius:10px; border:2px solid #d3e2ff; font-size:calc(1.05rem * var(--fs-scale));
+    font-family:inherit; color:var(--blue-dark); }
+  .login-field input:focus{ outline:none; border-color:var(--blue-600); box-shadow:0 0 0 3px rgba(37,79,186,.15); }
+  body.lang-ar .login-field{ text-align:right; }
+  .login-note{ font-size:calc(.85rem * var(--fs-scale)); color:#8892a0; text-align:center; max-width:420px; margin:0 auto; }
+  .student-badge{ position:absolute; top:.8rem; left:1rem; background:#fff; border:1px solid #e0e0e0; border-radius:999px;
+    padding:.4rem .9rem; font-weight:800; color:var(--blue-700); font-size:calc(.85rem * var(--fs-scale)); cursor:pointer;
+    box-shadow:0 2px 8px rgba(0,0,0,.12); z-index:20; }
+  .student-badge:hover{ background:var(--panel); }
+
+  /* ===== Final ===== */
+  .results{ display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; gap:.9rem; padding:1rem; text-align:center; }
+  .trophy{ font-size:clamp(4rem,12vw,5.5rem); animation:bounce 1s ease infinite; line-height:1; }
+  @keyframes bounce{ 0%,100%{transform:translateY(0) scale(1);} 50%{transform:translateY(-15px) scale(1.1);} }
+  .message{ font-size:calc(clamp(1.1rem,3.5vw,1.6rem) * var(--fs-scale)); font-weight:800; color:var(--blue-700); }
+  .results-table-box{ background:var(--panel); border-radius:12px; padding:1rem; width:100%; max-width:520px; }
+  .results-table-title{ color:var(--blue-700); font-weight:800; font-size:1.15rem; margin-bottom:.7rem; }
+  .results-table{ width:100%; border-collapse:collapse; font-size:calc(.95rem * var(--fs-scale)); }
+  .results-table th{ background:var(--blue-600); color:#fff; padding:.5rem .7rem; text-align:left; }
+  .results-table td{ padding:.5rem .7rem; border-bottom:1px solid #d3d8f0; text-align:left; color:var(--blue-dark); font-weight:600; }
+  .results-table tr:last-child td{ border-bottom:none; }
+  .results-table tr:nth-child(even) td{ background:rgba(255,255,255,.5); }
+  body.lang-ar .results-table th, body.lang-ar .results-table td{ text-align:right; }
+  .score-perfect{ color:var(--green-dark) !important; font-weight:900 !important; }
+  .score-partial{ color:var(--orange-700) !important; font-weight:900 !important; }
+  .final-note{ color:var(--blue-700); font-size:calc(1rem * var(--fs-scale)); max-width:520px; }
+  .credit{ font-size:.9rem; color:#999; margin-top:.6rem; }
+  .school-logo{ display:block; width:160px; max-width:40%; height:auto; border-radius:8px; object-fit:contain; }
+
+  /* ===== Modal ===== */
+  .modal-overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:999; padding:20px; }
+  .modal-content{ background:#fff; padding:2rem 1.6rem 1.6rem; border-radius:15px; width:90%; max-width:400px; text-align:center;
+    box-shadow:0 10px 30px rgba(0,0,0,0.3); animation:fadeIn .25s ease; }
+  .modal-content p{ color:var(--blue-dark); font-weight:700; font-size:calc(1.1rem * var(--fs-scale)); line-height:1.45; margin-bottom:1.3rem; }
+  .modal-content .btn-row{ margin-top:0; }
+  .modal-content .btn{ min-width:120px; }
+
+  .confetti{ position:fixed; width:10px; height:10px; border-radius:50%; animation:confetti-fall 3s linear forwards; z-index:1000; pointer-events:none; }
+  @keyframes confetti-fall{ 0%{transform:translate(0,-20px) rotate(0);opacity:1;} 100%{transform:translate(var(--tx),var(--ty)) rotate(360deg);opacity:0;} }
+
+  @media (max-width:520px){
+    .game-container{ padding:1rem .8rem; }
+    .top-controls{ right:.6rem; gap:5px; }
+    .lang-pill button, .font-pill button{ width:30px; height:30px; font-size:1rem; }
+    .font-pill button{ font-size:.78rem; }
+    .mute-btn{ width:34px; height:34px; }
+    header{ margin-top:3rem; }
+    .btn{ min-width:110px; padding:.6rem .9rem; }
+    .phase-card{ padding:.7rem; gap:.6rem; }
+    .phase-btn{ width:34px; height:34px; }
+    .tf-row{ padding:.7rem; }
+    .tf-btns button{ width:40px; height:40px; }
+    .memory-card{ padding:9px 7px; min-height:58px; }
+    .story-block{ padding:1.1rem 1.1rem; }
+    .kb-key{ width:25px; font-size:13px; }
+    .kb-key.wide{ width:54px; }
+    .kb-key.space{ width:110px; }
+  }
+</style>
+</head>
+<body>
+<div id="app" class="game-container"></div>
+
+<script>
+/* =========================================================
+   ATEDU · Diversidad — "Un partido a ciegas"
+   Juego de un solo archivo, sin dependencias externas.
+   Español / Darija (árabe marroquí, escritura árabe)
+   Creado por Manuel J. Ventura
+   ========================================================= */
+
+const T = {
+  "es": {
+    "gameTitle": "ATEDU: Diversidad",
+    "gameSubtitle": "Un partido a ciegas",
+    "teacherMode": "Modo profesor: cada actividad se desbloquea al completar la anterior. Ideal para pizarra digital o proyector.",
+    "startAnimo": "¡Ánimo!",
+    "start": "Comenzar",
+    "storyTitle": "Un partido a ciegas",
+    "story": [
+      "Tomás es ciego desde que nació. Se mueve por el colegio con su bastón blanco y lee los libros en braille, con la punta de los dedos.",
+      "Cuando el maestro de Educación Física anunció que iban a jugar al fútbol, Enzo protestó:",
+      "—Si juega Tomás, perderemos seguro. No ve el balón.",
+      "Tomás no dijo nada, pero apretó con fuerza el bastón. Lara, que se sentaba a su lado en clase, levantó la mano.",
+      "—¿Y si jugamos a algo en lo que Tomás pueda participar igual que todos?",
+      "El maestro sonrió y sacó del armario un balón con cascabeles dentro.",
+      "—Vamos a jugar al goalball, un deporte paralímpico. Todos llevaréis los ojos tapados con un antifaz. Hay que escuchar el balón para pararlo.",
+      "Al principio, todos estaban perdidos: chocaban entre ellos y el balón entraba en la portería sin que nadie supiera por dónde. Tomás, en cambio, se tiraba al suelo justo a tiempo y lo detenía casi siempre.",
+      "—¿Cómo lo haces? —preguntó Enzo, asombrado.",
+      "—Escucho de dónde viene el sonido. Llevo toda la vida practicando —respondió Tomás.",
+      "Enzo le pidió que le enseñara. Durante el resto de la clase, Tomás le dio consejos, y Enzo consiguió parar tres balones seguidos.",
+      "Al terminar, el maestro les explicó que la diversidad también está en las capacidades de cada persona: todos somos buenos en algo, y cuando adaptamos las actividades, nadie se queda fuera."
+    ],
+    "storyNames": [
+      "Tomás",
+      "Lara",
+      "Enzo"
+    ],
+    "continueToActivities": "Continuar a las actividades →",
+    "backToStory": "📖 Volver a la lectura",
+    "menuTitle": "Actividades",
+    "progressLabel": "Progreso",
+    "levels": {
+      "mcq": "Preguntas",
+      "tf": "Verdadero o falso",
+      "match": "Relaciona",
+      "order": "Ordena los hechos",
+      "debate": "Debate en grupo",
+      "write": "Mi compromiso"
+    },
+    "levelIcons": {
+      "mcq": "📝",
+      "tf": "✅",
+      "match": "🔗",
+      "order": "🔢",
+      "debate": "💬",
+      "write": "✍️"
+    },
+    "state_locked": "Bloqueada",
+    "state_current": "Lista para empezar",
+    "state_done": "Completada · repasar",
+    "resetAll": "🔄 Reiniciar todo",
+    "resetConfirm": "¿Reiniciar todas las actividades y empezar de nuevo?",
+    "yes": "Sí, reiniciar",
+    "cancel": "Cancelar",
+    "resumeMsg": "Hay una actividad sin terminar. ¿Queréis continuar donde lo dejasteis?",
+    "resumeYes": "Continuar",
+    "resumeNo": "Empezar de nuevo",
+    "autosaveNote": "El progreso se guarda automáticamente en este dispositivo.",
+    "nameHelp": "Escribe tu nombre para que el juego sepa quién eres. Así, si cambiáis de portátil o continuáis otro día, podréis seguir donde lo dejasteis.",
+    "nameLabel": "Tu nombre",
+    "nameSubmit": "Empezar",
+    "nameInvalid": "Escribe tu nombre para continuar.",
+    "loginConnecting": "Comprobando...",
+    "switchConfirm": "¿Cambiar de alumno/a? Se cerrará la sesión de {name}.",
+    "resumeMsgNamed": "Hay una actividad guardada para {name}. ¿Queréis continuar donde la dejasteis?",
+    "cloudOk": "Progreso guardado en la nube: se puede continuar desde cualquier ordenador.",
+    "cloudError": "No se ha podido guardar en la nube (revisa el Apps Script). De momento solo se guarda en este dispositivo.",
+    "mcq": [
+      {
+        "q": "¿Cómo lee Tomás los libros?",
+        "opts": [
+          "Con unas gafas especiales",
+          "Escuchándolos en audio",
+          "En braille, con la punta de los dedos",
+          "Con la ayuda de Lara"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "¿Por qué protestó Enzo?",
+        "opts": [
+          "Porque no le gustaba jugar al fútbol",
+          "Porque creía que perderían si jugaba Tomás",
+          "Porque quería jugar al goalball",
+          "Porque el balón tenía cascabeles"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Según el maestro, ¿cómo se juega al goalball?",
+        "opts": [
+          "Con los ojos tapados, escuchando un balón con cascabeles",
+          "Con un balón de colores y una portería pequeña",
+          "Solo los alumnos ciegos, con un antifaz",
+          "Con los ojos abiertos y un balón que suena"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Según el maestro, ¿qué pasa cuando adaptamos las actividades?",
+        "opts": [
+          "Que siempre gana el mismo equipo",
+          "Que los juegos son más fáciles para todos",
+          "Que todos jugamos igual de bien",
+          "Que nadie se queda fuera"
+        ],
+        "correct": 3
+      }
+    ],
+    "tf": [
+      {
+        "t": "Tomás se mueve por el colegio con un bastón blanco",
+        "a": true
+      },
+      {
+        "t": "Enzo levantó la mano para proponer otro juego",
+        "a": false
+      },
+      {
+        "t": "El maestro sacó del armario un balón con cascabeles dentro",
+        "a": true
+      },
+      {
+        "t": "Solo Tomás llevaba los ojos tapados con un antifaz",
+        "a": false
+      },
+      {
+        "t": "Al principio, los compañeros chocaban entre ellos",
+        "a": true
+      },
+      {
+        "t": "Enzo consiguió parar cinco balones seguidos",
+        "a": false
+      }
+    ],
+    "matchLeft": [
+      {
+        "t": "Lee los libros en braille",
+        "who": "Tomás"
+      },
+      {
+        "t": "Dijo que perderían seguro",
+        "who": "Enzo"
+      },
+      {
+        "t": "Se sentaba al lado de Tomás",
+        "who": "Lara"
+      },
+      {
+        "t": "Propuso un juego para todos",
+        "who": "Lara"
+      },
+      {
+        "t": "Detenía el balón casi siempre",
+        "who": "Tomás"
+      },
+      {
+        "t": "Preguntó asombrado cómo lo hacía",
+        "who": "Enzo"
+      },
+      {
+        "t": "Paró tres balones seguidos",
+        "who": "Enzo"
+      }
+    ],
+    "matchRight": [
+      "Tomás",
+      "Lara",
+      "Enzo"
+    ],
+    "order": [
+      {
+        "t": "Enzo protestó porque Tomás iba a jugar.",
+        "pos": 1
+      },
+      {
+        "t": "Lara propuso un juego en el que todos pudieran participar.",
+        "pos": 2
+      },
+      {
+        "t": "El maestro sacó un balón con cascabeles.",
+        "pos": 3
+      },
+      {
+        "t": "Tomás detuvo casi todos los balones.",
+        "pos": 4
+      },
+      {
+        "t": "Enzo paró tres balones seguidos.",
+        "pos": 5
+      }
+    ],
+    "debateQ": "¿En qué partes de la historia se valora la diversidad? ¿Qué descubrió Enzo sobre Tomás? Comentadlo en grupo antes de continuar.",
+    "writeTitle": "Mi compromiso con la diversidad",
+    "writePrompt": "Como Lara y Enzo, yo también puedo valorar lo que cada persona sabe hacer y buscar formas de que nadie se quede fuera. Me comprometo a...",
+    "writePlaceholder": "Escribe aquí tu compromiso...",
+    "showArKeyboard": "⌨️ Mostrar teclado árabe",
+    "hideArKeyboard": "⌨️ Ocultar teclado árabe",
+    "finish": "Finalizar",
+    "finishConfirm": "¿Ya has terminado de escribir tu compromiso?",
+    "check": "Comprobar",
+    "next": "Siguiente",
+    "continueBtn": "Continuar",
+    "retry": "Repetir",
+    "backMenu": "Volver al menú",
+    "correct": "¡Correcto!",
+    "incorrect": "Incorrecto",
+    "scoreLabel": "Puntuación",
+    "congrats": "¡Enhorabuena!",
+    "congratsText": "Habéis completado la ficha de Diversidad.",
+    "summaryTitle": "Resumen de la clase",
+    "activityCol": "Actividad",
+    "finalNote": "Gracias por trabajar el valor de la diversidad. ¡Nos vemos en la próxima ficha!",
+    "playAgain": "🔄 Empezar de nuevo",
+    "credit": "Creado por Manuel J. Ventura",
+    "trueLabel": "Verdadero",
+    "falseLabel": "Falso",
+    "v": "V",
+    "f": "F",
+    "tf1": "1 = ",
+    "of5": " / 5 asignados"
+  },
+  "ar": {
+    "gameTitle": "ATEDU: التنوع",
+    "gameSubtitle": "ماتش بعينين مسدودين",
+    "teacherMode": "وضع الأستاذ: كل نشاط كيتفتح ملي تكمل اللي قبلو. مزيان للسبورة الرقمية أو البروجيكتور.",
+    "startAnimo": "بالتوفيق!",
+    "start": "بدا",
+    "storyTitle": "ماتش بعينين مسدودين",
+    "story": [
+      "توماس عمى من نهار تزاد. كيتحرك فالمدرسة بالعكاز الأبيض ديالو وكيقرا الكتب بالبراي، بالراس ديال صبعانو.",
+      "ملي المعلم ديال الرياضة علن بلي غادي يلعبو الكورة، إنزو احتج:",
+      "—إلا لعب توماس، أكيد غادي نخسرو. ما كيشوفش الكورة.",
+      "توماس ما قال والو، ولكن زير مزيان على العكاز. لارا، اللي كانت كتگلس حداه فالقسم، هزات يدها.",
+      "—وإلا لعبنا شي لعبة يقدر يشارك فيها توماس بحال كلشي؟",
+      "المعلم ضحك وخرج من الخزانة كورة فيها الجلاجل.",
+      "—غادي نلعبو الگولبول، رياضة بارالمبية. كلكم غادي تسدو عينيكم بقناع. خاصكم تسمعو الكورة باش تشدوها.",
+      "فالأول، كلشي كان تالف: كيتصادمو بيناتهم والكورة كتدخل للگول بلا ما حتى واحد يعرف منين. أما توماس، كان كيطيح لأرض فالوقت بالضبط وكيشدها تقريبا ديما.",
+      "—كيفاش كديرها؟ —سول إنزو وهو مستغرب.",
+      "—كنسمع منين جاي الصوت. هادي حياتي كاملة وأنا كنتمرن —جاوب توماس.",
+      "إنزو طلب منو يعلمو. فباقي الحصة، توماس عطاه نصائح، وإنزو قدر يشد تلت كورات وحدة مور وحدة.",
+      "فالأخير، المعلم شرح ليهم بلي التنوع حتى هو كاين فالقدرات ديال كل واحد: كلنا مزيانين فشي حاجة، وملي كنكيفو الأنشطة، حتى واحد ما كيبقى برا."
+    ],
+    "storyNames": [
+      "توماس",
+      "لارا",
+      "إنزو"
+    ],
+    "continueToActivities": "← كمل للأنشطة",
+    "backToStory": "📖 رجوع للقراءة",
+    "menuTitle": "الأنشطة",
+    "progressLabel": "التقدم",
+    "levels": {
+      "mcq": "أسئلة",
+      "tf": "صحيح ولا غلط",
+      "match": "ربط",
+      "order": "رتب الأحداث",
+      "debate": "نقاش فالقسم",
+      "write": "الالتزام ديالي"
+    },
+    "levelIcons": {
+      "mcq": "📝",
+      "tf": "✅",
+      "match": "🔗",
+      "order": "🔢",
+      "debate": "💬",
+      "write": "✍️"
+    },
+    "state_locked": "مسدودة",
+    "state_current": "واجدة باش تبدا",
+    "state_done": "كملات · رجع ليها",
+    "resetAll": "🔄 عاود من البداية",
+    "resetConfirm": "واش بغيتي تعاود جميع الأنشطة من البداية؟",
+    "yes": "إييه، عاود",
+    "cancel": "لا",
+    "resumeMsg": "كاين نشاط ماكملتيش. واش بغيتي تكملو من فين وقفتو؟",
+    "resumeYes": "كمل",
+    "resumeNo": "بدا من جديد",
+    "autosaveNote": "التقدم كيتسجل أوتوماتيكيا فهاد الجهاز.",
+    "nameHelp": "كتب سميتك باش اللعبة تعرف شكون نتا. بهاد الشكل، إلا بدلتو الكمبيوتر أو كملتو نهار آخر، تقدرو تكملو من فين وقفتو.",
+    "nameLabel": "سميتك",
+    "nameSubmit": "بدا",
+    "nameInvalid": "كتب سميتك باش تكمل.",
+    "loginConnecting": "كيتأكد...",
+    "switchConfirm": "واش بغيتي تبدل التلميذ(ة)؟ غادي تسد الجلسة ديال {name}.",
+    "resumeMsgNamed": "كاين نشاط محفوظ ديال {name}. واش بغيتي تكملو من فين وقفتو؟",
+    "cloudOk": "التقدم متسجل فالسحاب: تقدر تكمل من أي كمبيوتر.",
+    "cloudError": "ما قدرناش نسجلو فالسحاب (تأكد من Apps Script). دابا كيتسجل غير فهاد الجهاز.",
+    "mcq": [
+      {
+        "q": "كيفاش كيقرا توماس الكتب؟",
+        "opts": [
+          "بنظارات خاصة",
+          "كيسمعهم بالأوديو",
+          "بالبراي، بالراس ديال صبعانو",
+          "بالمعاونة ديال لارا"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "علاش احتج إنزو؟",
+        "opts": [
+          "حيت ما كتعجبوش الكورة",
+          "حيت كان كيظن بلي غادي يخسرو إلا لعب توماس",
+          "حيت كان باغي يلعب الگولبول",
+          "حيت الكورة فيها الجلاجل"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "حسب المعلم، كيفاش كيتلعب الگولبول؟",
+        "opts": [
+          "بعينين مسدودين، وكتسمع كورة فيها الجلاجل",
+          "بكورة ملونة وگول صغير",
+          "غير التلاميذ العميان، بقناع",
+          "بعينين محلولين وكورة كتصوت"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "حسب المعلم، أش كيوقع ملي كنكيفو الأنشطة؟",
+        "opts": [
+          "ديما كيربح نفس الفريق",
+          "اللعب كيولي ساهل على كلشي",
+          "كلنا كنلعبو مزيان بحال بحال",
+          "حتى واحد ما كيبقى برا"
+        ],
+        "correct": 3
+      }
+    ],
+    "tf": [
+      {
+        "t": "توماس كيتحرك فالمدرسة بعكاز أبيض",
+        "a": true
+      },
+      {
+        "t": "إنزو هز يدو باش يقترح لعبة أخرى",
+        "a": false
+      },
+      {
+        "t": "المعلم خرج من الخزانة كورة فيها الجلاجل",
+        "a": true
+      },
+      {
+        "t": "غير توماس اللي كان مسدود عينيه بقناع",
+        "a": false
+      },
+      {
+        "t": "فالأول، الصحاب كانو كيتصادمو بيناتهم",
+        "a": true
+      },
+      {
+        "t": "إنزو قدر يشد خمس كورات وحدة مور وحدة",
+        "a": false
+      }
+    ],
+    "matchLeft": [
+      {
+        "t": "كيقرا الكتب بالبراي",
+        "who": "توماس"
+      },
+      {
+        "t": "قال بلي أكيد غادي يخسرو",
+        "who": "إنزو"
+      },
+      {
+        "t": "كانت كتگلس حدا توماس",
+        "who": "لارا"
+      },
+      {
+        "t": "قترحات لعبة للجميع",
+        "who": "لارا"
+      },
+      {
+        "t": "كان كيشد الكورة تقريبا ديما",
+        "who": "توماس"
+      },
+      {
+        "t": "سول مستغرب كيفاش كيديرها",
+        "who": "إنزو"
+      },
+      {
+        "t": "شد تلت كورات وحدة مور وحدة",
+        "who": "إنزو"
+      }
+    ],
+    "matchRight": [
+      "توماس",
+      "لارا",
+      "إنزو"
+    ],
+    "order": [
+      {
+        "t": "إنزو احتج حيت توماس غادي يلعب.",
+        "pos": 1
+      },
+      {
+        "t": "لارا قترحات لعبة يقدر يشارك فيها كلشي.",
+        "pos": 2
+      },
+      {
+        "t": "المعلم خرج كورة فيها الجلاجل.",
+        "pos": 3
+      },
+      {
+        "t": "توماس شد تقريبا جميع الكورات.",
+        "pos": 4
+      },
+      {
+        "t": "إنزو شد تلت كورات وحدة مور وحدة.",
+        "pos": 5
+      }
+    ],
+    "debateQ": "فأشمن أجزاء ديال القصة كيتقدر التنوع؟ أش كتاشف إنزو على توماس؟ تكلمو فيها فالقسم قبل ما تكملو.",
+    "writeTitle": "الالتزام ديالي بالتنوع",
+    "writePrompt": "بحال لارا وإنزو، أنا أيضا نقدر نعطي القيمة لداكشي اللي كيعرف يدير كل واحد ونقلب على طرق باش حتى واحد ما يبقى برا. كنلتزم ب...",
+    "writePlaceholder": "كتب هنا الالتزام ديالك...",
+    "showArKeyboard": "⌨️ وري الكيبورد العربي",
+    "hideArKeyboard": "⌨️ خبي الكيبورد العربي",
+    "finish": "سالي",
+    "finishConfirm": "واش سالتي كتابة الالتزام ديالك؟",
+    "check": "تأكد",
+    "next": "التالي",
+    "continueBtn": "كمل",
+    "retry": "عاود",
+    "backMenu": "رجوع للقائمة",
+    "correct": "صحيح!",
+    "incorrect": "غلط",
+    "scoreLabel": "النقط",
+    "congrats": "مبروك!",
+    "congratsText": "كملتو الورقة ديال التنوع.",
+    "summaryTitle": "ملخص القسم",
+    "activityCol": "النشاط",
+    "finalNote": "شكرا على الخدمة على قيمة التنوع. نتلاقاو فالورقة الجاية!",
+    "playAgain": "🔄 بدا من جديد",
+    "credit": "Creado por Manuel J. Ventura",
+    "trueLabel": "صحيح",
+    "falseLabel": "غلط",
+    "v": "ص",
+    "f": "غ",
+    "tf1": "1 = ",
+    "of5": " / 5 متعينين"
+  }
+};
+
+const LEVEL_ORDER = ["mcq","tf","match","order","debate","write"];
+
+/* ---------------- IMÁGENES ---------------- */
+const IMG_START = "https://raw.githubusercontent.com/ManuelVS8/Efectos_audio/refs/heads/main/Ni%C3%B1os.png";
+const IMG_LOGO  = "https://raw.githubusercontent.com/ManuelVS8/Efectos_audio/refs/heads/main/Siurot.png";
+
+/* ---------------- SOUNDS (Efectos_audio) ---------------- */
+const SOUND_BASE = "https://raw.githubusercontent.com/ManuelVS8/Efectos_audio/main/";
+const SOUND_FILES = {
+  tap:"Tap.mp3",
+  correct:"Correcto.mp3",
+  error:"Error.mp3",
+  completed:"Completado.mp3",
+  victory:"Victoria%202.mp3"
+};
+const soundCache = {};
+function getSound(name){
+  if(!soundCache[name]){
+    const a = new Audio(SOUND_BASE + SOUND_FILES[name]);
+    a.preload = "auto";
+    soundCache[name] = a;
+  }
+  return soundCache[name];
+}
+function playSound(name){
+  if(state.isMuted) return;
+  try{
+    const base = getSound(name);
+    const clone = base.cloneNode(true);
+    clone.play().catch(()=>{});
+  }catch(e){ /* audio not critical, ignore */ }
+}
+function vibrateWrong(){
+  try{ if(navigator.vibrate) navigator.vibrate(120); }catch(e){}
+}
+
+/* ---------------- GUARDADO POR NOMBRE (Google Sheets vía Apps Script, + copia local) ---------------- */
+const CLOUD_API_URL = "https://script.google.com/macros/s/AKfycbwYUnB0JDXcmoBNshEhDixgWEnlWAob04h4CQ9N7aEumfw-5M1i2CDoC2C8aEujh9GK/exec";
+const GAME_ID = "atedu_diversidad_partido_ciegas_v1"; // identificador único de esta ficha: cada ficha/juego debe tener el suyo para no mezclar progresos
+let cloudUser = null; // {name}
+let cloudBusy = false;
+
+function cloudConfigured(){
+  return CLOUD_API_URL && CLOUD_API_URL.indexOf("PON_AQUI")!==0;
+}
+async function cloudRequest(action, extra){
+  if(!cloudConfigured()) return {ok:false, error:"no_configurado"};
+  try{
+    const res = await fetch(CLOUD_API_URL, {
+      method:"POST",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body: JSON.stringify(Object.assign({action:action, game:GAME_ID}, extra))
+    });
+    return await res.json();
+  }catch(e){
+    return {ok:false, error:"red"};
+  }
+}
+let cloudSaveTimer = null;
+function scheduleCloudSave(){
+  if(!cloudUser) return;
+  clearTimeout(cloudSaveTimer);
+  cloudSaveTimer = setTimeout(cloudSaveNow, 700);
+}
+async function cloudSaveNow(){
+  if(!cloudUser || state.screen==="final") return;
+  const res = await cloudRequest("save", {name:cloudUser.name, data:buildSnapshot()});
+  state.cloudStatus = res.ok ? "ok" : "error";
+}
+
+function slugName(name){ return name.trim().toLowerCase().replace(/\s+/g,"_"); }
+function localKeyFor(name){ return "atedu_progress_" + GAME_ID + "_" + slugName(name); }
+function loadLocalFor(name){
+  try{
+    const raw = localStorage.getItem(localKeyFor(name));
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ return null; }
+}
+function saveLocalFor(name, data){
+  try{ localStorage.setItem(localKeyFor(name), JSON.stringify(data)); }catch(e){}
+}
+
+async function submitName(){
+  const t = tr();
+  const el = document.getElementById("studentName");
+  const name = (el && el.value || "").trim();
+  if(!name){ showModal(t.nameInvalid); render(); return; }
+
+  state.studentName = name;
+  cloudUser = {name:name};
+  cloudBusy = true; render();
+
+  let progress = null;
+  if(cloudConfigured()){
+    const res = await cloudRequest("load", {name:name});
+    state.cloudStatus = res.ok ? "ok" : "error";
+    if(res.ok && res.progress) progress = res.progress;
+  } else {
+    state.cloudStatus = "off";
+  }
+  if(!progress){
+    progress = loadLocalFor(name);
+  }
+  cloudBusy = false;
+
+  if(progress && progress.screen && progress.screen!=="final" && progress.screen!=="intro" && progress.screen!=="nameScreen"){
+    showModal(t.resumeMsgNamed.replace('{name}', name), ()=>restoreProgress(progress), { onNo:startFreshNamed, yesLabel:t.resumeYes, noLabel:t.resumeNo });
+  } else {
+    startFreshNamed();
+  }
+}
+function startFreshNamed(){
+  playSound('tap');
+  state.screen = "story";
+  render();
+}
+function confirmSwitchStudent(){
+  const t = tr();
+  showModal(t.switchConfirm.replace('{name}', state.studentName||""), doSwitchStudent);
+}
+function doSwitchStudent(){
+  playSound('tap');
+  state.studentName = null;
+  cloudUser = null;
+  state.levelStatus = {mcq:"unlocked",tf:"locked",match:"locked",order:"locked",debate:"locked",write:"locked"};
+  state.scores = {mcq:0,tf:0,match:0,order:0};
+  state.mcqIndex=0; state.mcqAnswered=false; state.mcqSelected=null;
+  state.tfAnswers={}; state.tfChecked=false;
+  state.matchSelLeft=null; state.matchDone={}; state.matchErr=null;
+  state.orderDisplay=null; state.orderChecked=false; state.orderSelected=null;
+  state.writeText=""; state.showKb=false;
+  state.screen = "nameScreen";
+  render();
+}
+function studentBadgeHtml(){
+  if(!state.studentName) return "";
+  const t = tr();
+  let statusIcon = "", statusTitle = "";
+  if(state.cloudStatus==="ok"){ statusIcon = "☁️"; statusTitle = t.cloudOk; }
+  else if(state.cloudStatus==="error"){ statusIcon = "⚠️"; statusTitle = t.cloudError; }
+  return `<div class="student-badge" onclick="confirmSwitchStudent()" title="${esc(tr().switchConfirm.replace('{name}', state.studentName))}">👤 <strong>${esc(state.studentName)}</strong>${statusIcon?` <span title="${esc(statusTitle)}">${statusIcon}</span>`:""}</div>`;
+}
+
+let state = {
+  lang:"es",
+  screen:"intro",
+  studentName:null,
+  cloudStatus:null,
+  levelStatus:{mcq:"unlocked",tf:"locked",match:"locked",order:"locked",debate:"locked",write:"locked"},
+  scores:{mcq:0,tf:0,match:0,order:0},
+  mcqIndex:0, mcqAnswered:false, mcqSelected:null,
+  tfAnswers:{}, tfChecked:false,
+  matchSelLeft:null, matchDone:{}, matchErr:null,
+  orderChecked:false, orderDisplay:null, orderSelected:null,
+  writeText:"",
+  showKb:false,
+  modal:null,
+  fontScale:1,
+  isMuted:false
+};
+let lastRenderedScreen = null;
+
+function tr(){ return T[state.lang]; }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function dirAttr(){ return state.lang==='ar' ? 'dir="rtl"' : ''; }
+
+function shuffledIndexes(n){
+  let arr = Array.from({length:n}, (_,i)=>i);
+  let isIdentity = true;
+  let tries = 0;
+  do{
+    for(let i=arr.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]] = [arr[j],arr[i]];
+    }
+    isIdentity = arr.every((v,i)=>v===i);
+    tries++;
+  } while(isIdentity && tries<10);
+  return arr;
+}
+
+function setLang(l){
+  if(state.lang!==l) playSound('tap');
+  state.lang = l;
+  document.body.classList.toggle("lang-ar", l==="ar");
+  document.documentElement.lang = l;
+  render();
+}
+
+function showModal(msg, onYes, opts){
+  opts = opts || {};
+  state.modal = {msg, onYes, onNo:opts.onNo||null, yesLabel:opts.yesLabel||null, noLabel:opts.noLabel||null};
+  render();
+}
+function closeModal(){
+  const cb = state.modal && state.modal.onNo;
+  state.modal = null;
+  if(cb) cb();
+  render();
+}
+window.modalConfirm = function(){
+  const cb = state.modal && state.modal.onYes;
+  state.modal = null;
+  if(cb) cb();
+  render();
+};
+window.modalCancel = closeModal;
+
+/* ---------------- CONTROLES SUPERIORES ---------------- */
+const SVG_SOUND_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 3.54a9 9 0 0 1 0 12.73M19.07 4.93a13 13 0 0 1 0 14.14"></path></svg>';
+const SVG_SOUND_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>';
+
+function langToggleHtml(){
+  return `<div class="lang-pill">
+    <button type="button" class="${state.lang==='es'?'active-lang':''}" onclick="setLang('es')" title="Español">🇪🇸</button>
+    <button type="button" class="${state.lang==='ar'?'active-lang':''}" onclick="setLang('ar')" title="الدارجة">🇲🇦</button>
+  </div>`;
+}
+
+const FONT_MIN = 0.8, FONT_MAX = 1.7, FONT_STEP = 0.1;
+function fontToggleHtml(){
+  return `<div class="font-pill">
+    <button type="button" onclick="decFont()" aria-label="Reducir letra">A-</button>
+    <button type="button" onclick="incFont()" aria-label="Aumentar letra">A+</button>
+  </div>`;
+}
+function muteBtnHtml(){
+  return `<button type="button" class="mute-btn ${state.isMuted?'muted':''}" onclick="toggleMute()" title="Volumen">${state.isMuted?SVG_SOUND_OFF:SVG_SOUND_ON}</button>`;
+}
+function controlsHtml(){
+  return `<div class="top-controls">${fontToggleHtml()}${langToggleHtml()}${muteBtnHtml()}</div>`;
+}
+function toggleMute(){
+  state.isMuted = !state.isMuted;
+  if(!state.isMuted) playSound('tap');
+  render();
+}
+function incFont(){
+  state.fontScale = Math.min(FONT_MAX, Math.round((state.fontScale+FONT_STEP)*100)/100);
+  applyFontScale();
+}
+function decFont(){
+  state.fontScale = Math.max(FONT_MIN, Math.round((state.fontScale-FONT_STEP)*100)/100);
+  applyFontScale();
+}
+function applyFontScale(){
+  document.documentElement.style.setProperty('--fs-scale', state.fontScale);
+  saveProgress();
+}
+
+/* ---------------- BARRA DE PROGRESO ---------------- */
+function progressHtml(label){
+  const done = LEVEL_ORDER.filter(k=>state.levelStatus[k]==="done").length;
+  const pct = Math.round(done/LEVEL_ORDER.length*100);
+  return `<div class="game-info">
+    <div class="level-indicator">${esc(label)}</div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="counter">${done}/${LEVEL_ORDER.length}</div>
+  </div>`;
+}
+
+/* ---------------- RENDER ROOT ---------------- */
+function render(){
+  const t = tr();
+  const app = document.getElementById("app");
+  let inner = "";
+
+  if(state.screen==="intro") inner = screenIntro(t);
+  else if(state.screen==="nameScreen") inner = screenNameScreen(t);
+  else if(state.screen==="story") inner = screenStory(t);
+  else if(state.screen==="menu") inner = screenMenu(t);
+  else if(state.screen==="mcq") inner = screenMcq(t);
+  else if(state.screen==="tf") inner = screenTf(t);
+  else if(state.screen==="match") inner = screenMatch(t);
+  else if(state.screen==="order") inner = screenOrder(t);
+  else if(state.screen==="debate") inner = screenDebate(t);
+  else if(state.screen==="write") inner = screenWrite(t);
+  else if(state.screen==="final") inner = screenFinal(t);
+
+  const changed = state.screen !== lastRenderedScreen;
+  lastRenderedScreen = state.screen;
+
+  let html = controlsHtml() + studentBadgeHtml() + `<section class="screen${changed?' anim':''}">${inner}</section>`;
+
+  if(state.modal){
+    html += `<div class="modal-overlay"><div class="modal-content">
+      <p ${dirAttr()}>${esc(state.modal.msg)}</p>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="modalCancel()">${esc(state.modal.noLabel || t.cancel)}</button>
+        <button class="btn btn-primary" onclick="modalConfirm()">${esc(state.modal.yesLabel || t.yes)}</button>
+      </div>
+    </div></div>`;
+  }
+
+  app.innerHTML = html;
+  if(changed) window.scrollTo(0,0);
+
+  if(state.screen==="write"){
+    const ta = document.getElementById("writeArea");
+    if(ta){
+      ta.value = state.writeText;
+      ta.oninput = function(){ state.writeText = ta.value; scheduleSave(); };
+      ta.classList.toggle("rtl", state.lang==="ar");
+    }
+  }
+  saveProgress();
+}
+
+/* ---------------- SCREENS ---------------- */
+function screenIntro(t){
+  return `<header>
+      <h1 ${dirAttr()}>${esc(t.gameTitle)}</h1>
+      <div class="subtitle" ${dirAttr()}>${esc(t.gameSubtitle)}</div>
+    </header>
+    <div class="start-content">
+      <div class="start-icon">🔔</div>
+      <div class="advice-box" ${dirAttr()}>${esc(t.teacherMode)}<strong>${esc(t.startAnimo)}</strong></div>
+      <button class="btn btn-primary" onclick="goNameScreen()">${esc(t.start)}</button>
+      <img class="start-image" src="${IMG_START}" alt="Niños">
+    </div>`;
+}
+
+function goStory(){ playSound('tap'); state.screen="story"; render(); }
+
+/* ---- NOMBRE DEL ALUMNO / GUARDADO ---- */
+function goNameScreen(){ playSound('tap'); state.screen="nameScreen"; render(); }
+
+function screenNameScreen(t){
+  return `<header>
+      <h1 ${dirAttr()}>${esc(t.gameTitle)}</h1>
+      <div class="subtitle" ${dirAttr()}>${esc(t.gameSubtitle)}</div>
+    </header>
+    <div class="start-content">
+      <div class="start-icon">🙋</div>
+      <p class="login-note" ${dirAttr()}>${esc(t.nameHelp)}</p>
+      <div class="login-field" ${dirAttr()}>
+        <label for="studentName">${esc(t.nameLabel)}</label>
+        <input id="studentName" type="text" maxlength="30" autocomplete="off">
+      </div>
+      <button class="btn btn-primary" ${cloudBusy?"disabled":""} onclick="submitName()">${esc(cloudBusy?t.loginConnecting:t.nameSubmit)}</button>
+    </div>`;
+}
+
+function highlightNames(text, names){
+  let out = esc(text);
+  const pattern = names.map(n=>n.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|');
+  const re = new RegExp(`(^|[\\s،,.—!¡؟?¿:;«»"])(${pattern})(?=[\\s،,.—!¡؟?¿:;«»"]|$)`, 'g');
+  return out.replace(re, '$1<span class="keyword">$2</span>');
+}
+
+function screenStory(t){
+  const paras = t.story.map(p=>`<p ${dirAttr()}>${highlightNames(p, t.storyNames)}</p>`).join("");
+  return `<header>
+      <h1 ${dirAttr()}>📖 ${esc(t.storyTitle)}</h1>
+      <div class="subtitle" ${dirAttr()}>${esc(t.gameTitle)}</div>
+    </header>
+    <div class="content" style="margin-top:.6rem;">
+      <div class="story-block">${paras}</div>
+      <div class="btn-row"><button class="btn btn-primary" onclick="goMenu()">${esc(t.continueToActivities)}</button></div>
+    </div>`;
+}
+
+function goMenu(){
+  playSound('tap');
+  state.screen="menu"; render();
+}
+
+function levelRowHtml(t,key){
+  const status = state.levelStatus[key];
+  const cls = status==="locked" ? "locked" : (status==="done" ? "done" : "current");
+  const label = status==="locked" ? t.state_locked : (status==="done" ? t.state_done : t.state_current);
+  const clickable = status!=="locked";
+  const prefix = status==="done" ? "✅ " : (status==="locked" ? "🔒 " : "");
+  const go = status==="locked" ? "" : `<div class="level-go">${state.lang==='ar'?'‹':'›'}</div>`;
+  return `<div class="level-row ${cls}" ${clickable?`onclick="enterLevel('${key}')"`:""}>
+    <div class="level-icon">${t.levelIcons[key]}</div>
+    <div class="level-info" ${dirAttr()}>
+      <div class="level-name">${esc(t.levels[key])}</div>
+      <div class="level-state">${prefix}${esc(label)}</div>
+    </div>
+    ${go}
+  </div>`;
+}
+
+function screenMenu(t){
+  const rows = LEVEL_ORDER.map(k=>levelRowHtml(t,k)).join("");
+  return `<header>
+      <h1 ${dirAttr()}>🎯 ${esc(t.menuTitle)}</h1>
+      <div class="subtitle" ${dirAttr()}>${esc(t.gameTitle)} · ${esc(t.gameSubtitle)}</div>
+    </header>
+    ${progressHtml(t.progressLabel)}
+    <div class="content">
+      <div class="level-list">${rows}</div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goStory()">${esc(t.backToStory)}</button>
+        <button class="btn btn-ghost" onclick="confirmReset()">${esc(t.resetAll)}</button>
+      </div>
+      <p class="footnote" ${dirAttr()}>💾 ${esc(t.autosaveNote)}</p>
+    </div>`;
+}
+
+function confirmReset(){
+  const t = tr();
+  playSound('tap');
+  showModal(t.resetConfirm, resetGame);
+}
+function resetGame(){
+  state.levelStatus = {mcq:"unlocked",tf:"locked",match:"locked",order:"locked",debate:"locked",write:"locked"};
+  state.scores = {mcq:0,tf:0,match:0,order:0};
+  state.mcqIndex=0; state.mcqAnswered=false; state.mcqSelected=null;
+  state.tfAnswers={}; state.tfChecked=false;
+  state.matchSelLeft=null; state.matchDone={}; state.matchErr=null;
+  state.orderDisplay=null; state.orderChecked=false;
+  state.writeText=""; state.showKb=false;
+  state.screen="menu";
+  render();
+}
+
+function enterLevel(key){
+  if(state.levelStatus[key]==="locked") return;
+  playSound('tap');
+  if(key==="mcq"){ state.mcqIndex=0; state.mcqAnswered=false; state.mcqSelected=null; state.scores.mcq=0; }
+  if(key==="tf"){ state.tfAnswers={}; state.tfChecked=false; }
+  if(key==="match"){ state.matchSelLeft=null; state.matchDone={}; state.matchErr=null; }
+  if(key==="order"){ state.orderChecked=false; state.orderDisplay=shuffledIndexes(tr().order.length); state.orderSelected=null; }
+  if(key==="write"){ /* keep text if revisiting */ }
+  state.screen = key;
+  render();
+}
+
+function unlockNext(fromKey){
+  const idx = LEVEL_ORDER.indexOf(fromKey);
+  state.levelStatus[fromKey]="done";
+  if(idx>=0 && idx+1<LEVEL_ORDER.length){
+    const nextKey = LEVEL_ORDER[idx+1];
+    if(state.levelStatus[nextKey]==="locked") state.levelStatus[nextKey]="unlocked";
+    playSound('completed');
+  } else {
+    playSound('victory');
+    if(state.studentName){
+      try{ localStorage.removeItem(localKeyFor(state.studentName)); }catch(e){}
+    }
+    state.screen="final";
+    render();
+    if(isPerfect()) createConfetti();
+    return;
+  }
+  state.screen="menu";
+  render();
+}
+
+/* ---- MCQ ---- */
+function screenMcq(t){
+  const q = t.mcq[state.mcqIndex];
+  const opts = q.opts.map((o,i)=>{
+    let cls="option-btn";
+    if(state.mcqAnswered){
+      if(i===q.correct) cls+=" correct";
+      else if(i===state.mcqSelected) cls+=" wrong";
+    }
+    return `<button class="${cls}" ${dirAttr()} ${state.mcqAnswered?"disabled":""} onclick="mcqAnswer(${i})">${esc(o)}</button>`;
+  }).join("");
+  const fb = state.mcqAnswered ?
+    (state.mcqSelected===q.correct
+      ? `<div class="feedback-msg ok">${esc(t.correct)}</div>`
+      : `<div class="feedback-msg bad">${esc(t.incorrect)}</div>`) : "";
+  const isLast = state.mcqIndex===t.mcq.length-1;
+  const nextBtn = state.mcqAnswered ?
+    `<div class="btn-row"><button class="btn btn-primary" onclick="${isLast?'mcqFinish()':'mcqNext()'}">${esc(isLast?t.continueBtn:t.next)}</button></div>` : "";
+  return `<header>
+      <h1 ${dirAttr()}>📝 ${esc(t.levels.mcq)}</h1>
+      <div class="subtitle" ${dirAttr()}>${esc(t.gameSubtitle)}</div>
+    </header>
+    ${progressHtml(`${t.levels.mcq} ${state.mcqIndex+1}/${t.mcq.length}`)}
+    <div class="content">
+      <div class="question-text" ${dirAttr()}>${esc(q.q)}</div>
+      <div class="options-grid">${opts}</div>
+      ${fb}
+      ${nextBtn}
+    </div>`;
+}
+function mcqAnswer(i){
+  if(state.mcqAnswered) return;
+  state.mcqSelected=i; state.mcqAnswered=true;
+  const t=tr();
+  const isCorrect = i===t.mcq[state.mcqIndex].correct;
+  if(isCorrect) state.scores.mcq++;
+  playSound(isCorrect ? 'correct' : 'error');
+  if(!isCorrect) vibrateWrong();
+  render();
+}
+function mcqNext(){ playSound('tap'); state.mcqIndex++; state.mcqAnswered=false; state.mcqSelected=null; render(); }
+function mcqFinish(){ unlockNext("mcq"); }
+
+/* ---- TF ---- */
+function screenTf(t){
+  const rows = t.tf.map((item,i)=>{
+    const sel = state.tfAnswers[i];
+    let rowCls="tf-row";
+    if(state.tfChecked){
+      rowCls += (sel===item.a) ? " ok" : " bad";
+    }
+    return `<div class="${rowCls}">
+      <div class="tf-text" ${dirAttr()}>${esc(item.t)}</div>
+      <div class="tf-btns">
+        <button type="button" class="${sel===true?'sel':''}" title="${esc(t.trueLabel)}" ${state.tfChecked?'disabled':''} onclick="tfSet(${i},true)">${esc(t.v)}</button>
+        <button type="button" class="${sel===false?'sel':''}" title="${esc(t.falseLabel)}" ${state.tfChecked?'disabled':''} onclick="tfSet(${i},false)">${esc(t.f)}</button>
+      </div>
+    </div>`;
+  }).join("");
+  const allAnswered = t.tf.every((_,i)=>state.tfAnswers[i]!==undefined);
+  const checkBtn = !state.tfChecked ?
+    `<div class="btn-row"><button class="btn btn-primary" ${allAnswered?"":"disabled"} onclick="tfCheck()">${esc(t.check)}</button></div>` :
+    `<div class="score-box">${esc(t.scoreLabel)}: ${state.scores.tf}/${t.tf.length}</div>
+     <div class="btn-row"><button class="btn btn-primary" onclick="unlockNext('tf')">${esc(t.continueBtn)}</button></div>`;
+  return `<header>
+      <h1 ${dirAttr()}>✅ ${esc(t.levels.tf)}</h1>
+      <div class="subtitle" ${dirAttr()}>${esc(t.gameSubtitle)}</div>
+    </header>
+    ${progressHtml(t.levels.tf)}
+    <div class="content">
+      <div class="tf-list">${rows}</div>
+      ${checkBtn}
+    </div>`;
+}
+function tfSet(i,val){
+  if(state.tfChecked) return;
+  playSound('tap');
+  state.tfAnswers[i]=val;
+  render();
+}
+function tfCheck(){
+  const t=tr();
+  let score=0;
+  t.tf.forEach((item,i)=>{ if(state.tfAnswers[i]===item.a) score++; });
+  state.scores.tf = score;
+  state.tfChecked = true;
+  playSound(score===t.tf.length ? 'correct' : 'error');
+  if(score!==t.tf.length) vibrateWrong();
+  render();
+}
+
+/* ---- MATCH ---- */
+function screenMatch(t){
+  const leftHtml = t.matchLeft.map((item,i)=>{
+    let cls="memory-card";
+    if(state.matchDone[i]!==undefined) cls+=" done";
+    else if(state.matchSelLeft===i) cls+=" sel";
+    else if(state.matchErr && state.matchErr.left===i) cls+=" err";
+    const done = state.matchDone[i]!==undefined;
+    return `<div class="${cls}" ${dirAttr()} ${done?"":`onclick="matchLeftClick(${i})"`}>${esc(item.t)}</div>`;
+  }).join("");
+
+  const rightHtml = t.matchRight.map((name,ri)=>{
+    let cls="memory-card";
+    const usedCount = t.matchLeft.filter((it,li)=>state.matchDone[li]!==undefined && t.matchRight[state.matchDone[li]]===name).length;
+    const totalForName = t.matchLeft.filter(it=>it.who===name).length;
+    if(usedCount>=totalForName) cls+=" done";
+    else if(state.matchErr && state.matchErr.right===ri) cls+=" err";
+    return `<div class="${cls}" onclick="matchRightClick(${ri})">${esc(name)}</div>`;
+  }).join("");
+
+  const totalPairs = t.matchLeft.length;
+  const donePairs = Object.keys(state.matchDone).length;
+  const allDone = donePairs===totalPairs;
+
+  return `<header>
+      <h1 ${dirAttr()}>🔗 ${esc(t.levels.match)}</h1>
+      <div class="subtitle" ${dirAttr()}>${state.lang==='es'?'Toca una frase y después el nombre que le corresponde.':'ضغط على الجملة، من بعد ضغط على الإسم لي كيوافقها.'}</div>
+    </header>
+    ${progressHtml(`${t.levels.match} ${donePairs}/${totalPairs}`)}
+    <div class="content">
+      <div class="match-cols">
+        <div class="match-col left">${leftHtml}</div>
+        <div class="match-col right">${rightHtml}</div>
+      </div>
+      ${allDone?`<div class="btn-row"><button class="btn btn-primary" onclick="unlockNext('match')">${esc(t.continueBtn)}</button></div>`:""}
+    </div>`;
+}
+function matchLeftClick(i){
+  if(state.matchDone[i]!==undefined) return;
+  playSound('tap');
+  state.matchSelLeft = i;
+  render();
+}
+function matchRightClick(ri){
+  if(state.matchSelLeft===null) return;
+  const t=tr();
+  const li = state.matchSelLeft;
+  const leftItem = t.matchLeft[li];
+  const rightName = t.matchRight[ri];
+  if(leftItem.who===rightName){
+    state.matchDone[li]=ri;
+    state.matchSelLeft=null;
+    state.matchErr=null;
+    state.scores.match = Object.keys(state.matchDone).length;
+    playSound('correct');
+    render();
+  } else {
+    state.matchErr = {left:li, right:ri};
+    state.matchSelLeft = null;
+    playSound('error');
+    vibrateWrong();
+    render();
+    setTimeout(()=>{ state.matchErr=null; render(); }, 450);
+  }
+}
+
+/* ---- ORDER ---- */
+function screenOrder(t){
+  if(!state.orderDisplay || state.orderDisplay.length!==t.order.length){
+    state.orderDisplay = shuffledIndexes(t.order.length);
+  }
+  const n = state.orderDisplay.length;
+  const rows = state.orderDisplay.map((idx,pos)=>{
+    const item = t.order[idx];
+    let cls="phase-card";
+    if(pos===state.orderSelected) cls += " selected";
+    if(state.orderChecked){
+      cls += (pos+1===item.pos) ? " ok" : " bad";
+    }
+    const upDisabled = pos===0 || state.orderChecked;
+    const downDisabled = pos===n-1 || state.orderChecked;
+    return `<div class="${cls}" onclick="selectOrderItem(${pos})">
+      <div class="phase-num">${pos+1}</div>
+      <div class="phase-text" ${dirAttr()}>${esc(item.t)}</div>
+      <div class="phase-controls">
+        <button type="button" class="phase-btn" ${upDisabled?"disabled":""} onclick="event.stopPropagation();moveOrderItem(${pos},-1)">▲</button>
+        <button type="button" class="phase-btn" ${downDisabled?"disabled":""} onclick="event.stopPropagation();moveOrderItem(${pos},1)">▼</button>
+      </div>
+    </div>`;
+  }).join("");
+  let actionBtn="";
+  if(!state.orderChecked){
+    actionBtn = `<div class="btn-row"><button class="btn btn-ghost" onclick="orderReset()">${esc(t.retry)}</button>
+      <button class="btn btn-primary" onclick="orderCheck()">${esc(t.check)}</button></div>`;
+  } else {
+    actionBtn = `<div class="score-box">${esc(t.scoreLabel)}: ${state.scores.order}/${t.order.length}</div>
+      <div class="btn-row"><button class="btn btn-ghost" onclick="orderReset()">${esc(t.retry)}</button>
+      <button class="btn btn-primary" onclick="unlockNext('order')">${esc(t.continueBtn)}</button></div>`;
+  }
+  return `<header>
+      <h1 ${dirAttr()}>🔢 ${esc(t.levels.order)}</h1>
+      <div class="subtitle" ${dirAttr()}>${state.lang==='es'?'Toca una frase para seleccionarla y usa las flechas ▲▼ para moverla.':'ضغط على جملة باش تختارها، وبعدها استعمل السهمين ▲▼ باش تحركها.'}</div>
+    </header>
+    ${progressHtml(t.levels.order)}
+    <div class="content">
+      ${rows}
+      ${actionBtn}
+    </div>`;
+}
+function selectOrderItem(pos){
+  if(state.orderChecked) return;
+  playSound('tap');
+  state.orderSelected = (state.orderSelected===pos) ? null : pos;
+  render();
+}
+function moveOrderItem(pos, dir){
+  if(state.orderChecked) return;
+  const newPos = pos+dir;
+  if(newPos<0 || newPos>=state.orderDisplay.length) return;
+  playSound('tap');
+  const arr = state.orderDisplay;
+  const tmp = arr[pos]; arr[pos]=arr[newPos]; arr[newPos]=tmp;
+  state.orderSelected = newPos;
+  render();
+}
+function orderReset(){
+  playSound('tap');
+  state.orderDisplay = shuffledIndexes(tr().order.length);
+  state.orderChecked = false;
+  state.orderSelected = null;
+  render();
+}
+function orderCheck(){
+  const t=tr();
+  let score=0;
+  state.orderDisplay.forEach((idx,pos)=>{ if(t.order[idx].pos===pos+1) score++; });
+  state.scores.order = score;
+  state.orderChecked = true;
+  state.orderSelected = null;
+  playSound(score===t.order.length ? 'correct' : 'error');
+  if(score!==t.order.length) vibrateWrong();
+  render();
+}
+
+/* ---- DEBATE ---- */
+function screenDebate(t){
+  return `<header>
+      <h1 ${dirAttr()}>💬 ${esc(t.levels.debate)}</h1>
+      <div class="subtitle" ${dirAttr()}>${esc(t.gameSubtitle)}</div>
+    </header>
+    ${progressHtml(t.levels.debate)}
+    <div class="content" style="flex:1;justify-content:center;">
+      <div class="debate-icon">🗣️</div>
+      <div class="advice-box debate-box" ${dirAttr()}>${esc(t.debateQ)}</div>
+      <div class="btn-row"><button class="btn btn-primary" onclick="unlockNext('debate')">${esc(t.continueBtn)}</button></div>
+    </div>`;
+}
+
+/* ---- WRITE ---- */
+const AR_KB_ROWS = [
+  ["ض","ص","ث","ق","ف","غ","ع","ه","خ","ح","ج"],
+  ["ش","س","ي","ب","ل","ا","ت","ن","م","ك","ط"],
+  ["ئ","ء","ؤ","ر","لا","ى","ة","و","ز","ظ","ڭ"]
+];
+function screenWrite(t){
+  const kbHtml = state.showKb ? `<div class="keyboard">
+    ${AR_KB_ROWS.map(row=>`<div class="kb-row">${row.map(k=>`<button type="button" class="kb-key" onclick="kbInsert('${k}')">${k}</button>`).join("")}</div>`).join("")}
+    <div class="kb-row">
+      <button type="button" class="kb-key wide" onclick="kbBackspace()">⌫</button>
+      <button type="button" class="kb-key space" onclick="kbInsert(' ')"></button>
+      <button type="button" class="kb-key wide" onclick="kbInsert('\\n')">↵</button>
+    </div>
+  </div>` : "";
+  return `<header>
+      <h1 ${dirAttr()}>✍️ ${esc(t.writeTitle)}</h1>
+      <div class="subtitle" ${dirAttr()}>${esc(t.levels.write)}</div>
+    </header>
+    ${progressHtml(t.levels.write)}
+    <div class="content">
+      <div class="advice-box" ${dirAttr()}>${esc(t.writePrompt)}</div>
+      <textarea id="writeArea" placeholder="${esc(t.writePlaceholder)}"></textarea>
+      <button type="button" class="btn btn-ghost keyboard-toggle" onclick="toggleKb()">${esc(state.showKb?t.hideArKeyboard:t.showArKeyboard)}</button>
+      ${kbHtml}
+      <div class="btn-row"><button class="btn btn-primary" onclick="confirmFinish()">${esc(t.finish)}</button></div>
+    </div>`;
+}
+function toggleKb(){ playSound('tap'); state.showKb=!state.showKb; render(); }
+function kbInsert(ch){
+  const ta = document.getElementById("writeArea");
+  if(!ta) return;
+  const start = ta.selectionStart, end = ta.selectionEnd;
+  const val = ta.value;
+  const insert = ch==='\\n' ? "\n" : ch;
+  ta.value = val.slice(0,start) + insert + val.slice(end);
+  const newPos = start+insert.length;
+  ta.selectionStart = ta.selectionEnd = newPos;
+  ta.focus();
+  state.writeText = ta.value;
+  scheduleSave();
+}
+function kbBackspace(){
+  const ta = document.getElementById("writeArea");
+  if(!ta) return;
+  const start = ta.selectionStart, end = ta.selectionEnd;
+  const val = ta.value;
+  if(start===end && start>0){
+    ta.value = val.slice(0,start-1)+val.slice(end);
+    ta.selectionStart = ta.selectionEnd = start-1;
+  } else {
+    ta.value = val.slice(0,start)+val.slice(end);
+    ta.selectionStart = ta.selectionEnd = start;
+  }
+  ta.focus();
+  state.writeText = ta.value;
+  scheduleSave();
+}
+function confirmFinish(){
+  const ta = document.getElementById("writeArea");
+  if(ta) state.writeText = ta.value;
+  const t=tr();
+  playSound('tap');
+  showModal(t.finishConfirm, ()=>unlockNext("write"));
+}
+
+/* ---- FINAL ---- */
+function isPerfect(){
+  const t = T.es;
+  return state.scores.mcq===t.mcq.length && state.scores.tf===t.tf.length &&
+         state.scores.match===t.matchLeft.length && state.scores.order===t.order.length;
+}
+function scoreCell(got,total){
+  return `<td class="${got===total?'score-perfect':'score-partial'}">${got}/${total}</td>`;
+}
+function screenFinal(t){
+  return `<header>
+      <h1 ${dirAttr()}>${esc(t.gameTitle)}</h1>
+      <div class="subtitle" ${dirAttr()}>${esc(t.gameSubtitle)}</div>
+    </header>
+    <div class="results">
+      <div class="trophy">🏆</div>
+      <h1 ${dirAttr()}>${esc(t.congrats)}</h1>
+      <div class="message" ${dirAttr()}>${esc(t.congratsText)}</div>
+      <div class="results-table-box" ${dirAttr()}>
+        <div class="results-table-title">${esc(t.summaryTitle)}</div>
+        <table class="results-table">
+          <thead><tr><th>${esc(t.activityCol)}</th><th>${esc(t.scoreLabel)}</th></tr></thead>
+          <tbody>
+            <tr><td>📝 ${esc(t.levels.mcq)}</td>${scoreCell(state.scores.mcq,t.mcq.length)}</tr>
+            <tr><td>✅ ${esc(t.levels.tf)}</td>${scoreCell(state.scores.tf,t.tf.length)}</tr>
+            <tr><td>🔗 ${esc(t.levels.match)}</td>${scoreCell(state.scores.match,t.matchLeft.length)}</tr>
+            <tr><td>🔢 ${esc(t.levels.order)}</td>${scoreCell(state.scores.order,t.order.length)}</tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="final-note" ${dirAttr()}>${esc(t.finalNote)}</p>
+      <button class="btn btn-primary" onclick="confirmReset()">${esc(t.playAgain)}</button>
+      <div class="credit">${esc(t.credit)}</div>
+      <img class="school-logo" src="${IMG_LOGO}" alt="Logo Siurot">
+    </div>`;
+}
+
+/* ---------------- CONFETI ---------------- */
+function createConfetti(){
+  for(let i=0;i<100;i++){
+    setTimeout(()=>{
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      const x = Math.random() * window.innerWidth;
+      const tx = (Math.random() - 0.5) * 200;
+      c.style.left = x + 'px'; c.style.top = '-10px';
+      c.style.backgroundColor = ['#ff595e','#1982c4','#6a4c93','#ffca3a','#8ac926'][Math.floor(Math.random()*5)];
+      c.style.setProperty('--tx', tx + 'px');
+      c.style.setProperty('--ty', window.innerHeight + 20 + 'px');
+      document.body.appendChild(c);
+      setTimeout(()=>c.remove(), 3000);
+    }, i*20);
+  }
+}
+
+/* ---------------- AUTOSAVE ---------------- */
+let saveTimer = null;
+function scheduleSave(){ clearTimeout(saveTimer); saveTimer = setTimeout(saveProgress, 400); }
+function buildSnapshot(){
+  return {
+    lang: state.lang,
+    fontScale: state.fontScale,
+    screen: state.screen,
+    levelStatus: state.levelStatus,
+    scores: state.scores,
+    mcqIndex: state.mcqIndex,
+    tfAnswers: state.tfAnswers,
+    tfChecked: state.tfChecked,
+    matchDone: state.matchDone,
+    orderDisplay: state.orderDisplay,
+    orderChecked: state.orderChecked,
+    writeText: state.writeText
+  };
+}
+function saveProgress(){
+  if(state.screen==="final" || state.screen==="intro" || state.screen==="nameScreen") return;
+  if(state.studentName) saveLocalFor(state.studentName, buildSnapshot());
+  if(cloudUser) scheduleCloudSave();
+}
+function restoreProgress(saved){
+  state.lang = saved.lang || "es";
+  state.fontScale = saved.fontScale || 1;
+  state.screen = saved.screen || "menu";
+  state.levelStatus = saved.levelStatus || state.levelStatus;
+  state.scores = saved.scores || state.scores;
+  state.mcqIndex = saved.mcqIndex || 0;
+  state.mcqAnswered = false; state.mcqSelected = null;
+  state.tfAnswers = saved.tfAnswers || {};
+  state.tfChecked = !!saved.tfChecked;
+  state.matchDone = saved.matchDone || {}; state.matchSelLeft = null; state.matchErr = null;
+  state.orderDisplay = saved.orderDisplay || null;
+  state.orderChecked = !!saved.orderChecked;
+  state.orderSelected = null;
+  state.writeText = saved.writeText || "";
+  document.body.classList.toggle("lang-ar", state.lang==="ar");
+  document.documentElement.lang = state.lang;
+  document.documentElement.style.setProperty('--fs-scale', state.fontScale);
+  render();
+}
+
+/* ---------------- PRECARGA (no bloqueante) ---------------- */
+window.addEventListener('load', ()=>{
+  [IMG_START, IMG_LOGO].forEach(url=>{ const img = new Image(); img.src = url; });
+  Object.keys(SOUND_FILES).forEach(k=>{ try{ getSound(k); }catch(e){} });
+});
+
+/* ---------------- INIT ---------------- */
+(function init(){
+  render();
+})();
+</script>
+</body>
+</html>
